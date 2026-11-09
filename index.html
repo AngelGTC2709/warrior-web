@@ -1,0 +1,478 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Warrior Kids</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Warrior Kids: app móvil gamificada de hábitos saludables para niñas, niños y sus familias. Proyecto del Instituto Tecnológico Superior de Zacapoaxtla.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head><body>
+
+<header class="nav" id="top">
+  <div class="nav__inner">
+    <a class="brand" href="#inicio" aria-label="Warrior Kids, ir al inicio">
+      <svg class="brand__shield" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 2 4 8v13c0 11 7 19 16 23 9-4 16-12 16-23V8L20 2Z" fill="var(--sky)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 9v29c6-3 10-9 10-17v-9l-10-3Z" fill="var(--mint)"/></svg>
+      <span>Warrior Kids</span>
+    </a>
+    <nav class="nav__links" id="navLinks" aria-label="Secciones">
+      <a href="#problema">El reto</a>
+      <a href="#app">La app</a>
+      <a href="#juega">Pruébalo</a>
+      <a href="#evolucion">Versiones</a>
+      <a href="#confianza">Privacidad</a>
+      <a href="#equipo">Equipo</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Cambiar tema claro u oscuro">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="sun" cx="12" cy="12" r="5"/><path class="moon" d="M21 13.5A8.5 8.5 0 1 1 10.5 3a7 7 0 0 0 10.5 10.5Z"/></svg>
+    </button>
+    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="progress-line" id="progressLine"></div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero" id="inicio">
+    <div class="blobs" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b4"></i></div>
+    <div class="wrap hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow">ITSZ · Ingeniería Informática</p>
+        <h1 class="hero__title">
+          <span class="word">Pequeños</span> <span class="word">pasos,</span><br>
+          <span class="word accent-sky">grandes</span> <span class="word accent-pink">aventuras</span>
+        </h1>
+        <p class="lead">Warrior Kids es una app móvil gamificada que ayuda a niñas y niños de 6 a 12 años a moverse más, tomar agua y comer mejor, jugando y en compañía de su familia.</p>
+        <div class="hero__cta">
+          <a class="btn btn--sky" href="#app">Conoce la app</a>
+          <a class="btn btn--ghost" href="#juega">Prueba un reto</a>
+        </div>
+        <ul class="hero__chips" aria-label="Datos clave">
+          <li><b>6–12</b> años</li>
+          <li><b>APK</b> Android lista</li>
+          <li><b>0</b> anuncios</li>
+          <li><b>$350</b> de costo total</li>
+        </ul>
+      </div>
+      <div class="hero__phone">
+        <div class="phone phone--hero" id="heroPhone">
+          <div class="phone__screen">
+            <img class="is-on" src="img/bienvenida.webp" alt="Pantalla de bienvenida de Warrior Kids" width="574" height="1278">
+            <img src="img/inicio.webp" alt="Pantalla de inicio con el reto del día" width="574" height="1278" loading="lazy">
+            <img src="img/progreso.webp" alt="Pantalla de progreso con puntos e insignias" width="574" height="1278" loading="lazy">
+            <img src="img/tutor-familia.webp" alt="Panel familiar de la persona tutora" width="574" height="1278" loading="lazy">
+          </div>
+        </div>
+        <div class="float-card fc1"><span class="ico">⭐</span><div><b>+15 pts</b><small>actividad confirmada</small></div></div>
+        <div class="float-card fc2"><span class="ico">💧</span><div><b>Meta de agua</b><small>5 vasos en familia</small></div></div>
+        <div class="float-card fc3"><span class="ico">🏅</span><div><b>Insignia</b><small>Familia en equipo</small></div></div>
+      </div>
+    </div>
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>Estira como gigante</span><span>·</span><span>Baila tu canción favorita</span><span>·</span><span>Imita animales</span><span>·</span><span>Paseo para descubrir</span><span>·</span><span>Sentadillas de superhéroe</span><span>·</span><span>Camina como cocodrilo</span><span>·</span><span>Plancha del osito</span><span>·</span>
+        <span>Estira como gigante</span><span>·</span><span>Baila tu canción favorita</span><span>·</span><span>Imita animales</span><span>·</span><span>Paseo para descubrir</span><span>·</span><span>Sentadillas de superhéroe</span><span>·</span><span>Camina como cocodrilo</span><span>·</span><span>Plancha del osito</span><span>·</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEMA -->
+  <section class="section" id="problema">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="eyebrow">El reto que atendemos</p>
+        <h2>Hábitos que empiezan temprano</h2>
+        <p class="sec-lead">En Zacapoaxtla, Puebla, el sedentarismo y la alimentación desequilibrada ya afectan la salud desde la infancia. Las cifras nacionales confirman que el problema sigue alto.</p>
+      </header>
+
+      <div class="stats">
+        <article class="stat reveal" style="--c: var(--pink)">
+          <div class="ring" data-value="37.3"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52"/><circle class="ring__bar" cx="60" cy="60" r="52"/></svg><span class="ring__num"><b class="count" data-to="37.3">0</b>%</span></div>
+          <h3>Niñas y niños de 5 a 11 años</h3>
+          <p>con sobrepeso u obesidad (ENSANUT 2022).</p>
+        </article>
+        <article class="stat reveal" style="--c: var(--peach)">
+          <div class="ring" data-value="41.1"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52"/><circle class="ring__bar" cx="60" cy="60" r="52"/></svg><span class="ring__num"><b class="count" data-to="41.1">0</b>%</span></div>
+          <h3>Adolescentes de 12 a 19 años</h3>
+          <p>con sobrepeso u obesidad (ENSANUT 2022).</p>
+        </article>
+        <article class="stat reveal" style="--c: var(--sky)">
+          <div class="ring" data-value="36.6"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52"/><circle class="ring__bar" cx="60" cy="60" r="52"/></svg><span class="ring__num"><b class="count" data-to="36.6">0</b>%</span></div>
+          <h3>Dato más reciente, 5 a 11 años</h3>
+          <p>ENSANUT Continua 2020-2024: el nivel se mantiene alto (40.1 % en adolescentes).</p>
+        </article>
+      </div>
+
+      <div class="gaps">
+        <div class="gap reveal"><span class="gap__ico" style="--c: var(--mint)">🏃</span><div><h3>Poca actividad física</h3><p>El sobrepeso y el sedentarismo son el principal factor de riesgo de diabetes tipo 2 a edades cada vez más tempranas.</p></div></div>
+        <div class="gap reveal"><span class="gap__ico" style="--c: var(--butter)">🥫</span><div><h3>Más ultraprocesados</h3><p>En regiones semirrurales crece su consumo y hay poco acceso a educación nutricional adaptada.</p></div></div>
+        <div class="gap reveal"><span class="gap__ico" style="--c: var(--sky)">📱</span><div><h3>Apps pensadas para adultos</h3><p>La mayoría usa un seguimiento tedioso para niños, deja fuera a los padres y no tiene enfoque regional.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ORIGEN -->
+  <section class="section section--tint" id="origen">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="eyebrow">Origen del proyecto</p>
+        <h2>Escuchamos primero a los niños</h2>
+        <p class="sec-lead">El trabajo de campo se hizo en la primaria Carlos I. Betancourt Molina, en el centro de Zacapoaxtla, con alumnos de quinto y sexto grado.</p>
+      </header>
+
+      <div class="field">
+        <div class="field__groups reveal" aria-label="Seis grupos escolares participantes">
+          <div class="grade"><span class="grade__label">5.º</span><span class="pill">A</span><span class="pill">B</span><span class="pill">C</span></div>
+          <div class="grade"><span class="grade__label">6.º</span><span class="pill">A</span><span class="pill">B</span><span class="pill">C</span></div>
+          <p class="field__note"><b>6 grupos</b> escolares en el grupo focal</p>
+        </div>
+        <ol class="steps">
+          <li class="reveal"><span class="steps__n">1</span><div><h3>Observación</h3><p>Miramos el entorno y los hábitos dentro de la comunidad escolar. Confirmó el sedentarismo y los malos hábitos alimenticios.</p></div></li>
+          <li class="reveal"><span class="steps__n">2</span><div><h3>Encuesta</h3><p>Preguntamos por sus gustos y lo que hacen en casa. Faltaban herramientas que los motivaran sin sentirlo como obligación.</p></div></li>
+          <li class="reveal"><span class="steps__n">3</span><div><h3>Grupo focal</h3><p>Conversamos sobre rutinas y formas de jugar. De ahí salen la gamificación, las rutinas con nombres divertidos y la evaluación de usabilidad.</p></div></li>
+        </ol>
+      </div>
+
+      <h3 class="sub reveal">De la necesidad a la solución</h3>
+      <p class="hint reveal">Toca cada tarjeta para ver cómo respondimos.</p>
+      <div class="flips">
+        <button class="flip reveal" type="button" aria-pressed="false"><span class="flip__in"><span class="flip__front" style="--c: var(--mint)"><small>Necesidad</small>Motivar la actividad física cotidiana</span><span class="flip__back"><small>Respuesta</small>Retos, misiones, puntos de experiencia e insignias ligados a movimiento y bienestar.</span></span></button>
+        <button class="flip reveal" type="button" aria-pressed="false"><span class="flip__in"><span class="flip__front" style="--c: var(--sky)"><small>Necesidad</small>Entender los hábitos saludables</span><span class="flip__back"><small>Respuesta</small>Interfaz visual, mensajes breves, categorías de hábitos y recursos de consulta.</span></span></button>
+        <button class="flip reveal" type="button" aria-pressed="false"><span class="flip__in"><span class="flip__front" style="--c: var(--butter)"><small>Necesidad</small>Promover una alimentación equilibrada</span><span class="flip__back"><small>Respuesta</small>Recetario y plan semanal con el Plato del Bien Comer y alimentos de uso familiar.</span></span></button>
+        <button class="flip reveal" type="button" aria-pressed="false"><span class="flip__in"><span class="flip__front" style="--c: var(--pink)"><small>Necesidad</small>Involucrar a la familia</span><span class="flip__back"><small>Respuesta</small>Panel para tutores, confirmación de actividades y configuración de alergias y preferencias.</span></span></button>
+        <button class="flip reveal" type="button" aria-pressed="false"><span class="flip__in"><span class="flip__front" style="--c: var(--peach)"><small>Necesidad</small>Evitar la comparación negativa</span><span class="flip__back"><small>Respuesta</small>Recompensas por constancia y participación, nunca por peso, apariencia o superioridad física.</span></span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP SHOWCASE -->
+  <section class="section" id="app">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="eyebrow">La app, versión 3.1</p>
+        <h2>Dos espacios, una misma familia</h2>
+        <p class="sec-lead">Con un toque se cambia entre el modo <b class="t-sky">Peque</b>, para la niña o el niño, y el modo <b class="t-pink">Tutor</b>, para la persona adulta que acompaña. Estas son pantallas reales del APK.</p>
+      </header>
+
+      <div class="showcase" id="showcase" data-mode="peque">
+        <div class="mode-switch" role="tablist" aria-label="Modo de la app">
+          <button role="tab" id="tabPeque" aria-selected="true" data-mode="peque">Peque</button>
+          <button role="tab" id="tabTutor" aria-selected="false" data-mode="tutor">Tutor</button>
+          <span class="mode-switch__knob" aria-hidden="true"></span>
+        </div>
+
+        <div class="showcase__grid">
+          <ul class="screens" id="screenList" aria-label="Pantallas"></ul>
+          <div class="showcase__phone">
+            <div class="phone" id="showPhone">
+              <div class="phone__screen"><img id="showImg" src="img/bienvenida.webp" alt="" width="574" height="1278"></div>
+            </div>
+            <div class="phone-nav">
+              <button type="button" id="prevScreen" aria-label="Pantalla anterior">‹</button>
+              <span id="screenCount">1 / 7</span>
+              <button type="button" id="nextScreen" aria-label="Pantalla siguiente">›</button>
+            </div>
+          </div>
+          <article class="screen-info" id="screenInfo" aria-live="polite">
+            <p class="eyebrow" id="infoTag">Modo Peque</p>
+            <h3 id="infoTitle">Bienvenida</h3>
+            <p id="infoText"></p>
+            <ul class="info-points" id="infoPoints"></ul>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUNCIONES -->
+  <section class="section section--tint" id="funciones">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="eyebrow">Lo que hace</p>
+        <h2>Cinco bloques que trabajan juntos</h2>
+      </header>
+      <div class="features">
+        <article class="feature reveal" style="--c: var(--pink)"><span class="feature__ico">👨‍👧</span><h3>Panel de tutor</h3><p>Registra y supervisa a cada menor, confirma actividades y configura alergias y preferencias alimenticias.</p></article>
+        <article class="feature reveal" style="--c: var(--butter)"><span class="feature__ico">🥗</span><h3>Nutrición y salud</h3><p>Recetas y plan semanal de desayuno, comida y cena con el Plato del Bien Comer y la cocina mexicana.</p></article>
+        <article class="feature reveal" style="--c: var(--mint)"><span class="feature__ico">🤸</span><h3>Ejercicio en familia</h3><p>Sesiones de 10 a 15 minutos de cardio, fuerza y flexibilidad con dinámicas de juego.</p></article>
+        <article class="feature reveal" style="--c: var(--sky)"><span class="feature__ico">🏆</span><h3>Gamificación</h3><p>XP, niveles, misiones diarias, rachas como la “Semana de fuego” e insignias como “Hidratacionista” y “Caminante”.</p></article>
+        <article class="feature reveal" style="--c: var(--peach)"><span class="feature__ico">💬</span><h3>Bienestar y NutriBot</h3><p>Registro del estado de ánimo y un asistente con respuestas guiadas que funciona dentro del teléfono.</p></article>
+        <article class="feature reveal" style="--c: var(--mint)"><span class="feature__ico">🧒</span><h3>Avatar propio</h3><p>Constructor con piel, cabello, ropa, accesorio y fondo, con vista previa al instante.</p></article>
+      </div>
+
+      <div class="routines reveal">
+        <div class="routines__tabs" role="tablist" aria-label="Tipos de rutina">
+          <button role="tab" aria-selected="true" data-r="cardio" id="rt-cardio">Cardio</button>
+          <button role="tab" aria-selected="false" data-r="fuerza" id="rt-fuerza">Fuerza</button>
+          <button role="tab" aria-selected="false" data-r="flex" id="rt-flex">Flexibilidad</button>
+        </div>
+        <div class="routines__body" id="routineBody"></div>
+        <p class="routines__note">Las rutinas suman hacia la meta de la OMS: <b>60 minutos diarios</b> de actividad para niñas y niños de 5 a 17 años.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRUEBALO -->
+  <section class="section" id="juega">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="eyebrow">Pruébalo aquí</p>
+        <h2>Así se siente un día en Warrior Kids</h2>
+        <p class="sec-lead">Una muestra interactiva de la lógica del prototipo: el peque avisa, el tutor confirma y llegan los puntos. Cada 100 puntos se completa una recompensa virtual.</p>
+      </header>
+
+      <div class="play">
+        <div class="play__card play__challenges reveal">
+          <div class="play__top">
+            <h3>Retos de hoy</h3>
+            <span class="pts-badge"><span aria-hidden="true">⭐</span> <b id="ptsNum">60</b> pts</span>
+          </div>
+          <ul class="challenges" id="challenges"></ul>
+        </div>
+
+        <div class="play__side">
+          <div class="play__card reveal">
+            <h3>Progreso</h3>
+            <div class="xp"><div class="xp__bar" id="xpBar" style="width:60%"></div></div>
+            <p class="small"><span id="xpText">60 de 100 puntos</span> para la siguiente recompensa virtual.</p>
+            <div class="badges" id="badges">
+              <div class="badge is-on" data-b="primer"><span>🎯</span><small>Primer reto</small></div>
+              <div class="badge" data-b="equipo"><span>🤝</span><small>Familia en equipo</small></div>
+              <div class="badge" data-b="hidra"><span>💧</span><small>Hidratacionista</small></div>
+              <div class="badge" data-b="cami"><span>🚶</span><small>Caminante</small></div>
+            </div>
+          </div>
+
+          <div class="play__card reveal">
+            <h3>Vasos de agua</h3>
+            <div class="water">
+              <div class="glasses" id="glasses" aria-hidden="true"></div>
+              <button class="btn btn--sky btn--sm" type="button" id="addWater">+1 vaso</button>
+            </div>
+            <p class="small" id="waterText">0 de 5 vasos de la meta familiar.</p>
+          </div>
+
+          <div class="play__card reveal">
+            <h3>¿Cómo te sientes?</h3>
+            <div class="moods" id="moods" role="radiogroup" aria-label="Estado de ánimo">
+              <button role="radio" aria-checked="false" data-m="gusto"><span>😊</span>A gusto</button>
+              <button role="radio" aria-checked="false" data-m="tranquilo"><span>😌</span>Tranquilo</button>
+              <button role="radio" aria-checked="false" data-m="masomenos"><span>😐</span>Más o menos</button>
+              <button role="radio" aria-checked="false" data-m="cansado"><span>😴</span>Cansado</button>
+              <button role="radio" aria-checked="false" data-m="triste"><span>😢</span>Triste</button>
+            </div>
+            <p class="mood-msg" id="moodMsg">No hay respuestas buenas o malas.</p>
+          </div>
+        </div>
+      </div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- RECETARIO -->
+  <section class="section section--tint" id="recetario">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="eyebrow">Recetario en familia</p>
+        <h2>Ingredientes de la región, en el Plato del Bien Comer</h2>
+        <p class="sec-lead">Ideas sencillas con alimentos comunes en Zacapoaxtla. El Plato del Bien Comer es una guía para aprender, no una dieta médica.</p>
+      </header>
+      <div class="plate-wrap">
+        <div class="plate reveal" aria-label="Grupos del Plato del Bien Comer">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+            <circle cx="100" cy="100" r="96" class="plate__rim"/>
+            <path class="plate__seg seg-veg" data-g="veg" d="M100 100 L100 12 A88 88 0 0 1 176.2 144 Z"/>
+            <path class="plate__seg seg-cer" data-g="cer" d="M100 100 L176.2 144 A88 88 0 0 1 23.8 144 Z"/>
+            <path class="plate__seg seg-leg" data-g="leg" d="M100 100 L23.8 144 A88 88 0 0 1 100 12 Z"/>
+          </svg>
+          <div class="plate__legend">
+            <button type="button" data-g="veg" class="lg lg-veg">Verduras y frutas</button>
+            <button type="button" data-g="cer" class="lg lg-cer">Cereales</button>
+            <button type="button" data-g="leg" class="lg lg-leg">Leguminosas y alimentos de origen animal</button>
+          </div>
+        </div>
+        <div class="recipes" id="recipes">
+          <article class="recipe reveal" data-g="veg cer leg"><span class="recipe__ico">🌮</span><div><h3>Quesadillas de hongos y quelites</h3><p>Verduras y frutas · cereales · alimentos de origen animal</p></div></article>
+          <article class="recipe reveal" data-g="veg cer leg"><span class="recipe__ico">🥑</span><div><h3>Tostadas de frijol y verduras</h3><p>Verduras y frutas · cereales · leguminosas</p></div></article>
+          <article class="recipe reveal" data-g="veg cer"><span class="recipe__ico">🌽</span><div><h3>Calabacitas con elote</h3><p>Verduras y frutas · cereales</p></div></article>
+          <article class="recipe reveal" data-g="cer veg"><span class="recipe__ico">🍎</span><div><h3>Avena con fruta</h3><p>Cereales · verduras y frutas</p></div></article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVOLUCION -->
+  <section class="section" id="evolucion">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="eyebrow">Evolución</p>
+        <h2>De un primer prototipo al rediseño de Warrior Kids</h2>
+        <p class="sec-lead">El mayor reto de la primera versión fue aprender un lenguaje nuevo sin saber por dónde empezar. Cada versión sumó algo que pidieron los usuarios.</p>
+      </header>
+      <ol class="timeline">
+        <li class="tl reveal" style="--c: var(--mint)"><span class="tl__dot"></span><div class="tl__card"><span class="tl__tag">Versión 1</span><h3>Básica</h3><p>Estructura mínima, verde para transmitir salud y naturaleza, pocas funciones y un solo usuario.</p></div></li>
+        <li class="tl reveal" style="--c: var(--pink)"><span class="tl__dot"></span><div class="tl__card"><span class="tl__tag">Versión 2</span><h3>Personalización</h3><p>Perfil de niño o niña con su nombre, paleta pastel y modo claro y oscuro.</p></div></li>
+        <li class="tl reveal" style="--c: var(--butter)"><span class="tl__dot"></span><div class="tl__card"><span class="tl__tag">Versión 3</span><h3>Integral</h3><p>Panel para padres, alergias y preferencias, Plato del Bien Comer, rutinas y gamificación.</p></div></li>
+        <li class="tl tl--now reveal" style="--c: var(--sky)"><span class="tl__dot"></span><div class="tl__card"><span class="tl__tag">Versión 3.1 · actual</span><h3>Rediseño de Warrior Kids</h3><p>Nueva pantalla principal, chat con el asistente NutriBot, datos guardados en el dispositivo, versión previa conservada y APK para Android.</p></div></li>
+        <li class="tl tl--next reveal" style="--c: var(--peach)"><span class="tl__dot"></span><div class="tl__card"><span class="tl__tag">Versión 4 · planeada</span><h3>Validación con especialistas</h3><p>Un pediatra, un nutriólogo y docentes de educación física revisarán contenidos, tiempos de pantalla y rutinas.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- TECNOLOGIA -->
+  <section class="section section--tint" id="tecnologia">
+    <div class="wrap tech">
+      <div class="reveal">
+        <p class="eyebrow">Cómo está hecha</p>
+        <h2>Un solo código para Android e iOS</h2>
+        <p class="sec-lead">Elegimos React Native con Expo para desarrollar para ambos sistemas desde una base común, probar en teléfonos reales con Expo Go y trabajar solo con software libre.</p>
+        <ul class="chips">
+          <li>React Native</li><li>Expo · Expo Router</li><li>EAS Build</li><li>TypeScript</li><li>JavaScript</li><li>ESLint</li><li>Node.js</li><li>Git · GitHub</li><li>VS Code</li><li>Figma</li><li>PostgreSQL <small>(prevista)</small></li>
+        </ul>
+      </div>
+      <div class="code reveal" aria-label="Archivos clave del proyecto">
+        <div class="code__bar"><i></i><i></i><i></i><span>warrior-kids/</span></div>
+        <ul class="code__files">
+          <li><code>src/app/index.tsx</code><span>Pantalla principal de Warrior Kids</span></li>
+          <li><code>src/app/familiar.tsx</code><span>Versión anterior, como respaldo</span></li>
+          <li><code>src/constants/theme.ts</code><span>Paleta y tema visual</span></li>
+          <li><code>app.json</code><span>Nombre, slug y Android</span></li>
+          <li><code>package.json</code><span>Dependencias y compatibilidad EAS</span></li>
+          <li><code>README.md</code><span>Documentación general del proyecto</span></li>
+          <li><code>dist/Warrior kids.apk</code><span>APK final para Android</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFIANZA -->
+  <section class="section" id="confianza">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="eyebrow">Privacidad y normas</p>
+        <h2>Diseñada para cuidar a la niñez</h2>
+        <p class="sec-lead">Warrior Kids es una herramienta educativa y preventiva. No diagnostica ni trata enfermedades y no sustituye a profesionales de la salud.</p>
+      </header>
+
+      <div class="promises">
+        <div class="promise reveal"><span>🔒</span><p>Los datos se guardan solo en el dispositivo.</p></div>
+        <div class="promise reveal"><span>🚫</span><p>Sin anuncios ni funciones sociales públicas.</p></div>
+        <div class="promise reveal"><span>🤖</span><p>NutriBot responde sin enviar datos a servicios externos.</p></div>
+        <div class="promise reveal"><span>⚖️</span><p>Ningún punto premia el peso o la apariencia.</p></div>
+        <div class="promise reveal"><span>⏳</span><p>El tutor acuerda el tiempo de uso diario.</p></div>
+      </div>
+
+      <div class="accordion reveal" id="norms">
+        <details>
+          <summary><span class="acc__code">NOM-043-SSA2-2012</span><span class="acc__t">Orientación alimentaria</span></summary>
+          <p>Define el Plato del Bien Comer con tres grupos de alimentos y pide adaptar la orientación al contexto local. Es la base del recetario, el menú semanal y el módulo de nutrición.</p>
+        </details>
+        <details>
+          <summary><span class="acc__code">NOM-051</span><span class="acc__t">Etiquetado de advertencia</span></summary>
+          <p>La app no presenta como saludable un producto con sellos y enseña a leerlos. Sus personajes no se asocian a productos de marca.</p>
+        </details>
+        <details>
+          <summary><span class="acc__code">Escuelas 2025</span><span class="acc__t">Alimentos y bebidas en planteles</span></summary>
+          <p>Prohíben la comida chatarra en las escuelas. El recetario prioriza alimentos regionales y la app refuerza el hábito de tomar agua.</p>
+        </details>
+        <details>
+          <summary><span class="acc__code">NOM-008-SSA3-2017</span><span class="acc__t">Sobrepeso y obesidad</span></summary>
+          <p>El tratamiento lo conducen profesionales. La app solo previene y educa: no diagnostica, no trata y no fija metas de peso.</p>
+        </details>
+        <details>
+          <summary><span class="acc__code">OMS 2020</span><span class="acc__t">Actividad física</span></summary>
+          <p>Al menos 60 minutos diarios de actividad moderada a vigorosa. Las rutinas de 10 a 15 minutos se acumulan hacia esa meta.</p>
+        </details>
+        <details>
+          <summary><span class="acc__code">LFPDPPP 2025</span><span class="acc__t">Protección de datos personales</span></summary>
+          <p>Aplicamos una regla más estricta: consentimiento del tutor, asentimiento del menor, datos mínimos y cero publicidad conductual infantil.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALIDAD -->
+  <section class="section section--tint" id="calidad">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="eyebrow">Método y calidad</p>
+        <h2>Construida en Sprints, medida con usuarios</h2>
+      </header>
+      <div class="quality">
+        <div class="sprint reveal" aria-label="Ciclo de un Sprint de dos semanas">
+          <div class="sprint__ring">
+            <span class="sp sp1">Product Backlog</span>
+            <span class="sp sp2">Sprint Planning</span>
+            <span class="sp sp3">Daily Scrum</span>
+            <span class="sp sp4">Sprint Review</span>
+            <span class="sp sp5">Retrospective</span>
+            <div class="sprint__center"><b>2</b><small>semanas por Sprint</small></div>
+          </div>
+        </div>
+        <div class="metrics reveal">
+          <h3>Metas de calidad</h3>
+          <div class="metric"><span>Casos de prueba aprobados</span><div class="bar"><i style="--w:90%"></i></div><b>≥ 90 %</b></div>
+          <div class="metric"><span>Tareas completadas por usuarios</span><div class="bar"><i style="--w:80%"></i></div><b>≥ 80 %</b></div>
+          <div class="metric"><span>Pantallas compatibles</span><div class="bar"><i style="--w:90%"></i></div><b>≥ 90 %</b></div>
+          <div class="metric"><span>Requisitos con pruebas</span><div class="bar"><i style="--w:100%"></i></div><b>100 %</b></div>
+          <div class="metric metric--plain"><span>Respuesta de pantallas principales</span><b>≤ 3 s</b></div>
+          <div class="metric metric--plain"><span>Defectos críticos al entregar</span><b>0</b></div>
+          <p class="small">Evaluación con el cuestionario SUS (System Usability Scale) y pruebas de caja negra, con 10 a 15 parejas tutor-menor del grupo focal. Referencias: ISO/IEC 25010, 12207 y 29119.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EQUIPO + CRONOGRAMA -->
+  <section class="section" id="equipo">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="eyebrow">Quiénes la hacemos</p>
+        <h2>El equipo Warrior Kids</h2>
+        <p class="sec-lead">Cinco estudiantes de Ingeniería Informática del Instituto Tecnológico Superior de Zacapoaxtla.</p>
+      </header>
+      <div class="team">
+        <article class="member reveal" style="--c: var(--sky)"><span class="avatar">JS</span><h3>Jesús Emmanuel Sánchez Aguilar</h3><p>Gerente de proyecto</p></article>
+        <article class="member reveal" style="--c: var(--mint)"><span class="avatar">ÁT</span><h3>Ángel Gabriel Tepetzinta Cruz</h3><p>Desarrollo</p></article>
+        <article class="member reveal" style="--c: var(--pink)"><span class="avatar">OP</span><h3>Oliver Abisai Polo Martínez</h3><p>Desarrollo</p></article>
+        <article class="member reveal" style="--c: var(--butter)"><span class="avatar">MR</span><h3>Miguel Ángel Rosas Alcántara</h3><p>Aseguramiento de la calidad</p></article>
+        <article class="member reveal" style="--c: var(--peach)"><span class="avatar">JZ</span><h3>Josias Josafat Zeno Félix</h3><p>Operaciones</p></article>
+      </div>
+
+      <div class="schedule reveal">
+        <div class="schedule__head">
+          <h3>Cronograma 2026</h3>
+          <span class="cost">Costo total <b>$350.00</b> <small>papelería para cuestionarios SUS</small></span>
+        </div>
+        <div class="gantt-scroll">
+          <div class="gantt">
+            <div class="g-row g-months"><span></span><span>Ago</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dic</span></div>
+            <div class="g-row"><span>Análisis y revisión bibliográfica</span><i style="--s:1;--e:3;--c:var(--mint)"></i></div>
+            <div class="g-row"><span>Arquitectura e interfaces UX/UI</span><i style="--s:2;--e:4;--c:var(--sky)"></i></div>
+            <div class="g-row"><span>Activación física y gamificación</span><i style="--s:3;--e:5;--c:var(--pink)"></i></div>
+            <div class="g-row"><span>Módulo nutricional y recetas</span><i style="--s:3;--e:5;--c:var(--butter)"></i></div>
+            <div class="g-row"><span>Integración y pruebas de caja negra</span><i style="--s:4;--e:5;--c:var(--peach)"></i></div>
+            <div class="g-row"><span>Pruebas de usabilidad SUS</span><i style="--s:4;--e:6;--c:var(--sky)"></i></div>
+            <div class="g-row"><span>Resultados, ajustes y reporte</span><i style="--s:5;--e:6;--c:var(--mint)"></i></div>
+            <div class="g-today" style="--m:3.25" aria-hidden="true"><span>Hoy</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <div>
+      <a class="brand" href="#inicio"><svg class="brand__shield" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 2 4 8v13c0 11 7 19 16 23 9-4 16-12 16-23V8L20 2Z" fill="var(--sky)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 9v29c6-3 10-9 10-17v-9l-10-3Z" fill="var(--mint)"/></svg><span>Warrior Kids</span></a>
+      <p>Pequeños pasos, grandes aventuras.</p>
+    </div>
+    <p class="footer__note">Prototipo académico de Ingeniería Informática del Instituto Tecnológico Superior de Zacapoaxtla. Warrior Kids no da diagnósticos ni consejos médicos y no sustituye la supervisión de una persona adulta o de profesionales de la salud. Será de uso libre para las familias de Zacapoaxtla.</p>
+    <a class="to-top" href="#inicio" aria-label="Volver arriba">↑</a>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body></html>
