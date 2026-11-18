@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Restablecer contraseña | Warrior Kids</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"
+    integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK"
+    crossorigin="anonymous"></script>
+  <script defer src="restablecer.js"></script>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Restablecer contraseña</h1>
+    <p>Recupera el acceso a tu cuenta tutora de Warrior Kids.</p>
+    <p id="mensaje" role="status" aria-live="polite">Revisando el enlace…</p>
+
+    <button id="verificar" type="button" hidden>Continuar</button>
+
+    <form id="formulario" hidden novalidate>
+      <p id="cuenta"></p>
+      <p>
+        <label for="contrasena">Nueva contraseña</label><br>
+        <input id="contrasena" type="password" autocomplete="new-password" minlength="6" required>
+      </p>
+      <p>
+        <label for="confirmacion">Confirma tu nueva contraseña</label><br>
+        <input id="confirmacion" type="password" autocomplete="new-password" minlength="6" required>
+      </p>
+      <button id="guardar" type="submit">Actualizar contraseña</button>
+    </form>
+
+    <p><a href="/">Volver al sitio de Warrior Kids</a></p>
+  </main>
+</body>
+</html>
