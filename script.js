@@ -3,7 +3,6 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const refreshIcons = () => { if (window.lucide) lucide.createIcons(); };
 
   /* ---------- Tema claro / oscuro ---------- */
   const root = document.documentElement;
@@ -51,7 +50,7 @@
   }, { rootMargin: "-45% 0px -50% 0px" });
   $$("main section[id]").forEach(s => secObs.observe(s));
 
-  /* ---------- Revelado al hacer scroll ---------- */
+  /* ---------- Revelado al hacer scroll (visible en reposo) ---------- */
   const groups = new Map();
   $$(".reveal").forEach(el => {
     const p = el.parentElement;
@@ -63,6 +62,7 @@
     entries.forEach(e => {
       if (!e.isIntersecting) return;
       const el = e.target;
+      // solo anima lo que entra desde abajo de la pantalla
       if (e.boundingClientRect.top > innerHeight * 0.4) el.classList.add("in");
       else el.classList.add("in", "no-anim");
       revObs.unobserve(el);
@@ -98,7 +98,7 @@
   }, { threshold: 0.3 });
   $$(".stat").forEach(s => statObs.observe(s));
 
-  /* ---------- Teléfono del hero ---------- */
+  /* ---------- Teléfono del hero: carrusel automático ---------- */
   const heroImgs = $$("#heroPhone img");
   let hi = 0;
   if (!reduce) setInterval(() => {
@@ -115,27 +115,28 @@
   /* ---------- Vitrina de pantallas ---------- */
   const SCREENS = {
     peque: [
-      { img: "bienvenida", icon: "hand", title: "Bienvenida", text: "La primera pantalla saluda a la familia y registra a la persona tutora con su nombre y un correo que solo identifica la cuenta en el dispositivo.", points: ["No pide contraseña: es una demostración local.", "Sin anuncios ni funciones sociales públicas.", "Los datos no se sincronizan con la nube."] },
-      { img: "inicio", icon: "home", title: "Inicio y reto del día", text: "El peque ve un saludo con su nombre, sus puntos y el reto de hoy, por ejemplo “Estira como gigante”, de unos 5 minutos.", points: ["Botón “Lo hice · avisar a mi tutor”.", "Más ideas para moverse, sin competencia.", "Cada actividad aprobada suma +15 puntos."] },
-      { img: "retos", icon: "activity", title: "Retos en espera", text: "Al avisar, la actividad queda en “Esperando revisión de tu tutor”. Así el adulto acompaña y confirma lo que se hizo.", points: ["Baila tu canción favorita · 10 min.", "Imita animales · 8 min.", "Paseo para descubrir · 15 min."] },
-      { img: "habitos", icon: "droplet", title: "Hábitos", text: "Registro de vasos de agua, exploración de los grupos del Plato del Bien Comer y un espacio para decir cómo se siente.", points: ["Registrar lo explorado no es una calificación.", "Ánimo: a gusto, tranquilo, más o menos, cansado o triste.", "Si se siente mal, sugiere hablar con un adulto de confianza."] },
-      { img: "progreso", icon: "star", title: "Progreso e insignias", text: "Los puntos llegan cuando el tutor confirma una actividad. Cada 100 puntos se completa una recompensa virtual.", points: ["Insignias como “Primer reto” y “Familia en equipo”.", "Se ganan por participar, nunca por apariencia o comparación."] },
-      { img: "recetas", icon: "salad", title: "Recetario en familia", text: "Ideas sencillas con ingredientes comunes de la región, con los grupos del Plato del Bien Comer que incluye cada una.", points: ["Quesadillas de hongos y quelites.", "Tostadas de frijol y verduras.", "Calabacitas con elote y avena con fruta."] },
-      { img: "ayuda", icon: "lock", title: "Ayuda y privacidad", text: "Explica con claridad los límites del prototipo y que la app no da diagnósticos ni consejos médicos.", points: ["Todo se guarda en el almacenamiento local.", "Sin notificaciones, anuncios ni chat externo.", "Las pruebas con menores requieren autorizaciones y consentimiento."] }
+      { img: "bienvenida", icon: "👋", title: "Bienvenida", text: "La primera pantalla saluda a la familia y registra a la persona tutora con su nombre y un correo que solo identifica la cuenta en el dispositivo.", points: ["No pide contraseña: es una demostración local.", "Sin anuncios ni funciones sociales públicas.", "Los datos no se sincronizan con la nube."] },
+      { img: "inicio", icon: "🏠", title: "Inicio y reto del día", text: "El peque ve un saludo con su nombre, sus puntos y el reto de hoy, por ejemplo “Estira como gigante”, de unos 5 minutos.", points: ["Botón “Lo hice · avisar a mi tutor”.", "Más ideas para moverse, sin competencia.", "Cada actividad aprobada suma +15 puntos."] },
+      { img: "retos", icon: "🤸", title: "Retos en espera", text: "Al avisar, la actividad queda en “Esperando revisión de tu tutor”. Así el adulto acompaña y confirma lo que se hizo.", points: ["Baila tu canción favorita · 10 min.", "Imita animales · 8 min.", "Paseo para descubrir · 15 min."] },
+      { img: "habitos", icon: "💧", title: "Hábitos", text: "Registro de vasos de agua, exploración de los grupos del Plato del Bien Comer y un espacio para decir cómo se siente.", points: ["Registrar lo explorado no es una calificación.", "Ánimo: a gusto, tranquilo, más o menos, cansado o triste.", "Si se siente mal, sugiere hablar con un adulto de confianza."] },
+      { img: "progreso", icon: "⭐", title: "Progreso e insignias", text: "Los puntos llegan cuando el tutor confirma una actividad. Cada 100 puntos se completa una recompensa virtual.", points: ["Insignias como “Primer reto” y “Familia en equipo”.", "Se ganan por participar, nunca por apariencia o comparación."] },
+      { img: "recetas", icon: "🥗", title: "Recetario en familia", text: "Ideas sencillas con ingredientes comunes de la región, con los grupos del Plato del Bien Comer que incluye cada una.", points: ["Quesadillas de hongos y quelites.", "Tostadas de frijol y verduras.", "Calabacitas con elote y avena con fruta."] },
+      { img: "ayuda", icon: "🔒", title: "Ayuda y privacidad", text: "Explica con claridad los límites del prototipo y que la app no da diagnósticos ni consejos médicos.", points: ["Todo se guarda en el almacenamiento local.", "Sin notificaciones, anuncios ni chat externo.", "Las pruebas con menores requieren autorizaciones y consentimiento."] }
     ],
     tutor: [
-      { img: "tutor-acceso", icon: "key-round", title: "Acceso de la persona tutora", text: "Para abrir perfiles y avances familiares, el tutor escribe el correo guardado en el dispositivo.", points: ["Es una barrera de prototipo, no una autenticación segura.", "Separa el espacio del peque del espacio adulto."] },
-      { img: "tutor-familia", icon: "users", title: "Familia", text: "Resumen del día: actividades confirmadas, vasos registrados y puntos acumulados, con todos los perfiles de la familia.", points: ["Varios perfiles infantiles: Alex, Juan, Josias…", "Botón para añadir otro perfil infantil.", "Los perfiles solo existen en esta cuenta local."] },
-      { img: "tutor-revision", icon: "check-circle-2", title: "Actividades por revisar", text: "El tutor pregunta cómo le fue al peque y confirma la actividad. En ese momento se suman los puntos.", points: ["Botón “Confirmar · +15 pts”.", "Contador de pendientes en la barra inferior."] },
-      { img: "tutor-recetas", icon: "book-open", title: "Recetario", text: "El mismo recetario regional, con ingredientes y preparación, para planear con calma.", points: ["Basado en el Plato del Bien Comer.", "Una guía de aprendizaje, no una dieta médica."] },
-      { img: "tutor-menu", icon: "calendar", title: "Planificador familiar", text: "Elige una receta para cada día de la semana y cámbiala cuando quieras.", points: ["De lunes a domingo.", "No es un plan alimenticio médico."] },
-      { img: "tutor-ajustes", icon: "settings", title: "Ajustes", text: "Recordatorios familiares, meta de agua elegida en familia y un tiempo de uso acordado.", points: ["Tiempo de uso: 15, 30, 45 o 60 minutos.", "La app no bloquea el dispositivo ni mide tiempo en segundo plano."] }
+      { img: "tutor-acceso", icon: "🔐", title: "Acceso de la persona tutora", text: "Para abrir perfiles y avances familiares, el tutor escribe el correo guardado en el dispositivo.", points: ["Es una barrera de prototipo, no una autenticación segura.", "Separa el espacio del peque del espacio adulto."] },
+      { img: "tutor-familia", icon: "👨‍👩‍👧", title: "Familia", text: "Resumen del día: actividades confirmadas, vasos registrados y puntos acumulados, con todos los perfiles de la familia.", points: ["Varios perfiles infantiles: Alex, Juan, Josias…", "Botón para añadir otro perfil infantil.", "Los perfiles solo existen en esta cuenta local."] },
+      { img: "tutor-revision", icon: "✅", title: "Actividades por revisar", text: "El tutor pregunta cómo le fue al peque y confirma la actividad. En ese momento se suman los puntos.", points: ["Botón “Confirmar · +15 pts”.", "Contador de pendientes en la barra inferior."] },
+      { img: "tutor-recetas", icon: "📖", title: "Recetario", text: "El mismo recetario regional, con ingredientes y preparación, para planear con calma.", points: ["Basado en el Plato del Bien Comer.", "Una guía de aprendizaje, no una dieta médica."] },
+      { img: "tutor-menu", icon: "📅", title: "Planificador familiar", text: "Elige una receta para cada día de la semana y cámbiala cuando quieras.", points: ["De lunes a domingo.", "No es un plan alimenticio médico."] },
+      { img: "tutor-ajustes", icon: "⚙️", title: "Ajustes", text: "Recordatorios familiares, meta de agua elegida en familia y un tiempo de uso acordado.", points: ["Tiempo de uso: 15, 30, 45 o 60 minutos.", "La app no bloquea el dispositivo ni mide tiempo en segundo plano."] }
     ]
   };
   const showcase = $("#showcase"), list = $("#screenList"), img = $("#showImg");
   const info = $("#screenInfo");
   let mode = "peque", idx = 0;
 
+  // precarga
   Object.values(SCREENS).flat().forEach(s => { const i = new Image(); i.src = `img/${s.img}.webp`; });
 
   const renderList = () => {
@@ -144,12 +145,11 @@
       const li = document.createElement("li");
       const b = document.createElement("button");
       b.type = "button";
-      b.innerHTML = `<span class="dot" aria-hidden="true"><i data-lucide="${s.icon}"></i></span><span>${s.title}</span>`;
+      b.innerHTML = `<span class="dot" aria-hidden="true">${s.icon}</span><span>${s.title}</span>`;
       b.addEventListener("click", () => show(i));
       li.appendChild(b);
       list.appendChild(li);
     });
-    refreshIcons();
   };
   const show = (i, first = false) => {
     const arr = SCREENS[mode];
@@ -177,7 +177,7 @@
   $$(".mode-switch button").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
   $("#prevScreen").addEventListener("click", () => show(idx - 1));
   $("#nextScreen").addEventListener("click", () => show(idx + 1));
-
+  // deslizar en el teléfono
   let sx = null;
   $("#showPhone").addEventListener("touchstart", e => { sx = e.touches[0].clientX; }, { passive: true });
   $("#showPhone").addEventListener("touchend", e => {
@@ -191,15 +191,14 @@
 
   /* ---------- Rutinas ---------- */
   const ROUTINES = {
-    cardio: [["music", "Baila tu canción favorita", "10 min · movimiento libre"], ["zap", "Imita animales", "8 min · salta y gatea"], ["footprints", "Paseo para descubrir", "15 min · caminata en familia"]],
-    fuerza: [["shield", "Sentadillas de superhéroe", "Piernas fuertes"], ["flame", "Camina como cocodrilo", "Brazos y abdomen"], ["award", "Plancha del osito", "Abdomen y espalda"]],
-    flex: [["move-vertical", "Estira como gigante", "5 min · brazos al cielo"], ["wind", "Respira y relaja", "Estiramiento suave y sin dolor"], ["sun", "Arcoíris de brazos", "Movimientos lentos de lado a lado"]]
+    cardio: [["💃", "Baila tu canción favorita", "10 min · movimiento libre"], ["🐸", "Imita animales", "8 min · salta y gatea"], ["🚶", "Paseo para descubrir", "15 min · caminata en familia"]],
+    fuerza: [["🦸", "Sentadillas de superhéroe", "Piernas fuertes"], ["🐊", "Camina como cocodrilo", "Brazos y abdomen"], ["🐻", "Plancha del osito", "Abdomen y espalda"]],
+    flex: [["🙆", "Estira como gigante", "5 min · brazos al cielo"], ["🧘", "Respira y relaja", "Estiramiento suave y sin dolor"], ["🌈", "Arcoíris de brazos", "Movimientos lentos de lado a lado"]]
   };
   const rBody = $("#routineBody");
   const renderR = (k) => {
-    rBody.innerHTML = ROUTINES[k].map(([i, t, d]) => `<div class="move"><span class="move__ico" aria-hidden="true"><i data-lucide="${i}"></i></span><div><b>${t}</b><small>${d}</small></div></div>`).join("");
+    rBody.innerHTML = ROUTINES[k].map(([i, t, d]) => `<div class="move"><span class="move__ico" aria-hidden="true">${i}</span><div><b>${t}</b><small>${d}</small></div></div>`).join("");
     $$(".routines__tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.r === k)));
-    refreshIcons();
   };
   $$(".routines__tabs button").forEach(b => b.addEventListener("click", () => renderR(b.dataset.r)));
   renderR("cardio");
@@ -207,14 +206,13 @@
   /* ---------- Demo de juego ---------- */
   let pts = 60, approved = 1, water = 0;
   const CH = [
-    { i: "move-vertical", t: "Estira como gigante", d: "5 min · +15 puntos con aprobación" },
-    { i: "music", t: "Baila tu canción favorita", d: "10 min · +15 puntos con aprobación" },
-    { i: "zap", t: "Imita animales", d: "8 min · +15 puntos con aprobación" },
-    { i: "footprints", t: "Paseo para descubrir", d: "15 min · +15 puntos con aprobación" }
+    { i: "🙆", t: "Estira como gigante", d: "5 min · +15 puntos con aprobación" },
+    { i: "💃", t: "Baila tu canción favorita", d: "10 min · +15 puntos con aprobación" },
+    { i: "🐸", t: "Imita animales", d: "8 min · +15 puntos con aprobación" },
+    { i: "🚶", t: "Paseo para descubrir", d: "15 min · +15 puntos con aprobación" }
   ];
   const chList = $("#challenges");
-  chList.innerHTML = CH.map((c, n) => `<li class="ch" data-state="todo" id="ch-${n}"><span class="ch__ico" aria-hidden="true"><i data-lucide="${c.i}"></i></span><b>${c.t}</b><small>${c.d}</small><button class="ch__btn" type="button">Ya la hice · avisar a mi tutor</button></li>`).join("");
-  refreshIcons();
+  chList.innerHTML = CH.map((c, n) => `<li class="ch" data-state="todo" id="ch-${n}"><span class="ch__ico" aria-hidden="true">${c.i}</span><b>${c.t}</b><small>${c.d}</small><button class="ch__btn" type="button">Ya la hice · avisar a mi tutor</button></li>`).join("");
 
   const toastEl = $("#toast");
   let toastT;
@@ -244,7 +242,7 @@
     const b = $(`.badge[data-b="${key}"]`);
     if (!b || b.classList.contains("is-on")) return;
     b.classList.add("is-on", "unlock");
-    toast(`Nueva insignia desbloqueada: ${name}`);
+    toast(`🏅 Nueva insignia: ${name}`);
   };
   const updatePts = () => {
     $("#ptsNum").textContent = pts;
@@ -252,7 +250,7 @@
     badge.classList.remove("bump"); void badge.offsetWidth; badge.classList.add("bump");
     const within = pts % 100;
     $("#xpBar").style.width = `${within === 0 ? 100 : within}%`;
-    $("#xpText").textContent = within === 0 ? "¡Recompensa completada! 100 de 100 puntos" : `${within} de 100 puntos`;
+    $("#xpText").textContent = within === 0 ? "¡Recompensa completada! 100 de 100 puntos" :`${within} de 100 puntos`;
   };
   chList.addEventListener("click", (e) => {
     const btn = e.target.closest(".ch__btn");
@@ -265,14 +263,14 @@
       toast("¡Actividad registrada! Pídele a tu tutor que la revise.");
     } else if (st === "waiting") {
       li.dataset.state = "done";
-      btn.textContent = "Confirmada";
+      btn.textContent = "Confirmada ✓";
       btn.disabled = true;
       const before = pts;
       pts += 15; approved++;
       updatePts();
       const r = btn.getBoundingClientRect();
       confetti(r.left + r.width / 2, r.top);
-      if (Math.floor(pts / 100) > Math.floor(before / 100)) setTimeout(() => toast("¡Recompensa virtual completada!"), 900);
+      if (Math.floor(pts / 100) > Math.floor(before / 100)) setTimeout(() => toast("🎁 ¡Recompensa virtual completada!"), 900);
       if (approved >= 3) setTimeout(() => unlock("equipo", "Familia en equipo"), 400);
       if (li.id === "ch-3") setTimeout(() => unlock("cami", "Caminante"), 1400);
     }
@@ -281,7 +279,7 @@
   const glasses = $("#glasses"), GOAL = 5;
   glasses.innerHTML = Array.from({ length: GOAL }, () => '<span class="glass"></span>').join("");
   $("#addWater").addEventListener("click", () => {
-    if (water >= GOAL) { toast("Meta de agua cumplida por hoy"); return; }
+    if (water >= GOAL) { toast("Meta de agua cumplida por hoy 💧"); return; }
     water++;
     $$(".glass", glasses)[water - 1].classList.add("full");
     $("#waterText").textContent = `${water} de ${GOAL} vasos de la meta familiar.`;
