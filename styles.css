@@ -137,9 +137,10 @@ p { margin: 0; }
 .nav { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
 .nav__inner { max-width: 1160px; margin: 0 auto; height: var(--nav-h); display: flex; align-items: center; gap: 16px; padding-inline: clamp(16px, 4vw, 32px); }
 .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 700 1.25rem var(--f-display); color: var(--ink); }
-.brand__shield { width: 30px; height: 34px; }
+.brand__logo { width: 52px; height: 52px; flex: none; object-fit: contain; }
+.nav .brand { flex: none; white-space: nowrap; }
 .nav__links { display: flex; gap: 4px; margin-left: auto; }
-.nav__links a { text-decoration: none; font-weight: 700; font-size: .95rem; padding: 8px 14px; border-radius: 999px; color: var(--muted); transition: background .25s, color .25s; }
+.nav__links a { text-decoration: none; font-weight: 700; font-size: .95rem; padding: 8px 14px; border-radius: 999px; color: var(--muted); white-space: nowrap; transition: background .25s, color .25s; }
 .nav__links a:hover, .nav__links a.is-active { background: var(--pink-soft); color: var(--ink); }
 .theme-btn { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; transition: transform .3s var(--ease); }
 .theme-btn:hover { transform: rotate(20deg); }
@@ -150,7 +151,7 @@ p { margin: 0; }
 .menu-btn { display: none; width: 42px; height: 42px; border: 0; background: transparent; padding: 10px; flex-direction: column; justify-content: space-between; }
 .menu-btn span { height: 3px; border-radius: 3px; background: var(--ink); }
 .progress-line { position: absolute; left: 0; bottom: -1px; height: 3px; width: 100%; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, var(--pink), var(--orange), var(--sky)); }
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .theme-btn { margin-left: auto; }
   .menu-btn { display: flex; }
   .nav__links { position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 2px; background: var(--surface); border-bottom: 1px solid var(--line); padding: 12px 16px; display: none; }
@@ -350,11 +351,13 @@ p { margin: 0; }
 /* ---------- FOOTER ---------- */
 .footer { background: var(--deep); color: var(--deep-fg); padding-block: 44px; border-top: 1px solid var(--line); }
 .footer .brand { color: var(--deep-fg); }
-.footer__inner { display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: center; }
-.footer__note { opacity: .8; font-size: .9rem; }
+.footer__inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 28px; align-items: center; }
+.footer__brand { display: grid; gap: 8px; justify-items: start; }
+.footer__brand .brand__logo { width: 72px; height: 72px; }
+.footer__note { max-width: 44ch; opacity: .8; font-size: .9rem; }
 .footer__links { display: flex; align-items: center; gap: 14px; font-weight: 700; font-size: .9rem; }
 .to-top { width: 44px; height: 44px; border-radius: 50%; background: var(--pink); color: #FFFFFF; text-decoration: none; }
-@media (max-width: 760px) { .footer__inner { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .footer__inner { grid-template-columns: 1fr; gap: 20px; } }
 
 /* ---------- PÁGINA RESTABLECER CONTRASEÑA ---------- */
 .auth-page { min-height: 100vh; display: flex; flex-direction: column; }
