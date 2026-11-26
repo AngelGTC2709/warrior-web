@@ -3,7 +3,6 @@
 const SUPABASE_URL = 'https://tmztuuwtgxkpxgvcjbel.supabase.co';
 const SUPABASE_PUBLIC_KEY = 'sb_publishable_m6QhcUa1ZpHzvdAhJwL-RA_cLbPvdxW';
 
-// Inicializar iconos y tema compartido con index.html
 if (window.lucide) lucide.createIcons();
 
 const root = document.documentElement;
@@ -22,7 +21,6 @@ document.getElementById('themeBtn')?.addEventListener('click', () => {
   store.set('wk-theme', root.dataset.theme);
 });
 
-// Botones de mostrar/ocultar contraseña
 document.querySelectorAll('.auth-eye').forEach(btn => {
   btn.addEventListener('click', () => {
     const input = document.getElementById(btn.dataset.target);

@@ -3,21 +3,37 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const refreshIcons = () => { if (window.lucide) lucide.createIcons(); };
 
-  /* ---------- Tema claro / oscuro ---------- */
+  /* ---------- Tema claro / oscuro sincronizado con las capturas ---------- */
   const root = document.documentElement;
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
-    set(k, v) { try { localStorage.setItem(k, v); } catch { /* sin almacenamiento */ } }
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} }
   };
+
+  function isDarkMode() {
+    if (root.dataset.theme) return root.dataset.theme === "dark";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+
+  function syncHeroImages() {
+    const dark = isDarkMode();
+    $$("#heroPhone img").forEach(img => {
+      const target = dark ? img.dataset.dark : img.dataset.light;
+      if (target) img.src = target;
+    });
+  }
+
   const saved = store.get("wk-theme");
   if (saved === "dark" || saved === "light") root.dataset.theme = saved;
+  syncHeroImages();
+
   $("#themeBtn").addEventListener("click", () => {
-    const isDark = root.dataset.theme
-      ? root.dataset.theme === "dark"
-      : window.matchMedia("(prefers-color-scheme: dark)").matches;
-    root.dataset.theme = isDark ? "light" : "dark";
+    root.dataset.theme = isDarkMode() ? "light" : "dark";
     store.set("wk-theme", root.dataset.theme);
+    syncHeroImages();
+    renderShowcase(currentIdx, true);
   });
 
   /* ---------- Menú móvil ---------- */
@@ -27,192 +43,361 @@
     menuBtn.setAttribute("aria-expanded", String(open));
     links.classList.toggle("is-open", open);
   });
-  $$("a", links).forEach(a => a.addEventListener("click", () => {
-    menuBtn.setAttribute("aria-expanded", "false");
-    links.classList.remove("is-open");
-  }));
 
-  /* ---------- Barra de progreso + enlace activo ---------- */
+  /* ---------- Barra de progreso ---------- */
   const line = $("#progressLine");
-  const navMap = new Map($$("a", links).map(a => [a.getAttribute("href").slice(1), a]));
-  const onScroll = () => {
+  addEventListener("scroll", () => {
     const h = document.documentElement.scrollHeight - innerHeight;
     line.style.transform = `scaleX(${h > 0 ? scrollY / h : 0})`;
-  };
-  addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
-  const secObs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      navMap.forEach(a => a.classList.remove("is-active"));
-      navMap.get(e.target.id)?.classList.add("is-active");
-    });
-  }, { rootMargin: "-45% 0px -50% 0px" });
-  $$("main section[id]").forEach(s => secObs.observe(s));
+  }, { passive: true });
 
-  /* ---------- Revelado al hacer scroll (visible en reposo) ---------- */
-  const groups = new Map();
-  $$(".reveal").forEach(el => {
-    const p = el.parentElement;
-    const i = groups.get(p) || 0;
-    groups.set(p, i + 1);
-    el.style.setProperty("--d", `${Math.min(i, 6) * 0.08}s`);
-  });
+  /* ---------- Revelado al hacer scroll ---------- */
   const revObs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (!e.isIntersecting) return;
-      const el = e.target;
-      // solo anima lo que entra desde abajo de la pantalla
-      if (e.boundingClientRect.top > innerHeight * 0.4) el.classList.add("in");
-      else el.classList.add("in", "no-anim");
-      revObs.unobserve(el);
+      e.target.classList.add("in");
+      revObs.unobserve(e.target);
     });
-  }, { rootMargin: "0px 0px 60px 0px" });
+  }, { rootMargin: "0px 0px 40px 0px" });
   $$(".reveal").forEach(el => revObs.observe(el));
-  const style = document.createElement("style");
-  style.textContent = ".reveal.no-anim{animation:none!important}";
-  document.head.appendChild(style);
 
   /* ---------- Contadores y anillos ---------- */
-  const animateCount = (el) => {
-    const to = parseFloat(el.dataset.to);
-    if (reduce) { el.textContent = to.toFixed(1); return; }
-    const t0 = performance.now(), dur = 1600;
-    const tick = (t) => {
-      const p = Math.min((t - t0) / dur, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = (to * eased).toFixed(1);
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  };
   const statObs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (!e.isIntersecting) return;
       const ring = $(".ring", e.target);
       const bar = $(".ring__bar", ring);
-      bar.style.strokeDashoffset = 326.7 * (1 - parseFloat(ring.dataset.value) / 100);
-      animateCount($(".count", e.target));
+      const to = parseFloat(ring.dataset.value);
+      bar.style.strokeDashoffset = 326.7 * (1 - to / 100);
+      $(".count", e.target).textContent = to.toFixed(1);
       statObs.unobserve(e.target);
     });
   }, { threshold: 0.3 });
   $$(".stat").forEach(s => statObs.observe(s));
 
-  /* ---------- Teléfono del hero: carrusel automático ---------- */
+  /* ---------- Carrusel automático Hero ---------- */
   const heroImgs = $$("#heroPhone img");
   let hi = 0;
-  if (!reduce) setInterval(() => {
-    heroImgs[hi].classList.remove("is-on");
-    hi = (hi + 1) % heroImgs.length;
-    heroImgs[hi].classList.add("is-on");
-  }, 3200);
+  if (!reduce && heroImgs.length > 1) {
+    setInterval(() => {
+      heroImgs[hi].classList.remove("is-on");
+      hi = (hi + 1) % heroImgs.length;
+      heroImgs[hi].classList.add("is-on");
+    }, 3400);
+  }
 
-  /* ---------- Tarjetas que giran ---------- */
-  $$(".flip").forEach(f => f.addEventListener("click", () => {
-    f.setAttribute("aria-pressed", f.getAttribute("aria-pressed") === "true" ? "false" : "true");
-  }));
-
-  /* ---------- Vitrina de pantallas ---------- */
-  const SCREENS = {
-    peque: [
-      { img: "bienvenida", icon: "👋", title: "Bienvenida", text: "La primera pantalla saluda a la familia y registra a la persona tutora con su nombre y un correo que solo identifica la cuenta en el dispositivo.", points: ["No pide contraseña: es una demostración local.", "Sin anuncios ni funciones sociales públicas.", "Los datos no se sincronizan con la nube."] },
-      { img: "inicio", icon: "🏠", title: "Inicio y reto del día", text: "El peque ve un saludo con su nombre, sus puntos y el reto de hoy, por ejemplo “Estira como gigante”, de unos 5 minutos.", points: ["Botón “Lo hice · avisar a mi tutor”.", "Más ideas para moverse, sin competencia.", "Cada actividad aprobada suma +15 puntos."] },
-      { img: "retos", icon: "🤸", title: "Retos en espera", text: "Al avisar, la actividad queda en “Esperando revisión de tu tutor”. Así el adulto acompaña y confirma lo que se hizo.", points: ["Baila tu canción favorita · 10 min.", "Imita animales · 8 min.", "Paseo para descubrir · 15 min."] },
-      { img: "habitos", icon: "💧", title: "Hábitos", text: "Registro de vasos de agua, exploración de los grupos del Plato del Bien Comer y un espacio para decir cómo se siente.", points: ["Registrar lo explorado no es una calificación.", "Ánimo: a gusto, tranquilo, más o menos, cansado o triste.", "Si se siente mal, sugiere hablar con un adulto de confianza."] },
-      { img: "progreso", icon: "⭐", title: "Progreso e insignias", text: "Los puntos llegan cuando el tutor confirma una actividad. Cada 100 puntos se completa una recompensa virtual.", points: ["Insignias como “Primer reto” y “Familia en equipo”.", "Se ganan por participar, nunca por apariencia o comparación."] },
-      { img: "recetas", icon: "🥗", title: "Recetario en familia", text: "Ideas sencillas con ingredientes comunes de la región, con los grupos del Plato del Bien Comer que incluye cada una.", points: ["Quesadillas de hongos y quelites.", "Tostadas de frijol y verduras.", "Calabacitas con elote y avena con fruta."] },
-      { img: "ayuda", icon: "🔒", title: "Ayuda y privacidad", text: "Explica con claridad los límites del prototipo y que la app no da diagnósticos ni consejos médicos.", points: ["Todo se guarda en el almacenamiento local.", "Sin notificaciones, anuncios ni chat externo.", "Las pruebas con menores requieren autorizaciones y consentimiento."] }
+  /* ---------- Gráficas reales del estudio (5.º y 6.º grado) ---------- */
+  const SURVEY_DATA = {
+    g5: [
+      {
+        title: "P1. Bebida habitual (5.º grado · n = 116)",
+        bars: [
+          { label: "Agua simple natural", pct: 37.9, n: 44, tone: "good" },
+          { label: "Jugos/aguas con azúcar o té", pct: 37.1, n: 43, tone: "warn" },
+          { label: "Refrescos o bebidas saborizadas", pct: 25.0, n: 29, tone: "bad" }
+        ]
+      },
+      {
+        title: "P2. Tiempo libre en casa (5.º grado · n = 116)",
+        bars: [
+          { label: "Juego activo, bici, deporte", pct: 33.6, n: 39, tone: "good" },
+          { label: "Dibujar, leer, juguetes", pct: 25.0, n: 29, tone: "warn" },
+          { label: "Pantallas sentado(a)", pct: 41.4, n: 48, tone: "bad" }
+        ]
+      },
+      {
+        title: "P3. Actividad en el recreo (5.º grado · n = 116)",
+        bars: [
+          { label: "Juegos con movimiento", pct: 46.6, n: 54, tone: "good" },
+          { label: "Caminar y platicar", pct: 32.8, n: 38, tone: "warn" },
+          { label: "Sentado, comer o dispositivo", pct: 20.7, n: 24, tone: "bad" }
+        ]
+      },
+      {
+        title: "P4. Sensación al correr (5.º grado · n = 116)",
+        bars: [
+          { label: "Con fuerza, sin problema", pct: 30.2, n: 35, tone: "good" },
+          { label: "Un poco cansado(a)", pct: 48.3, n: 56, tone: "warn" },
+          { label: "Muy agitado(a)", pct: 21.6, n: 25, tone: "bad" }
+        ]
+      }
     ],
-    tutor: [
-      { img: "tutor-acceso", icon: "🔐", title: "Acceso de la persona tutora", text: "Para abrir perfiles y avances familiares, el tutor escribe el correo guardado en el dispositivo.", points: ["Es una barrera de prototipo, no una autenticación segura.", "Separa el espacio del peque del espacio adulto."] },
-      { img: "tutor-familia", icon: "👨‍👩‍👧", title: "Familia", text: "Resumen del día: actividades confirmadas, vasos registrados y puntos acumulados, con todos los perfiles de la familia.", points: ["Varios perfiles infantiles: Alex, Juan, Josias…", "Botón para añadir otro perfil infantil.", "Los perfiles solo existen en esta cuenta local."] },
-      { img: "tutor-revision", icon: "✅", title: "Actividades por revisar", text: "El tutor pregunta cómo le fue al peque y confirma la actividad. En ese momento se suman los puntos.", points: ["Botón “Confirmar · +15 pts”.", "Contador de pendientes en la barra inferior."] },
-      { img: "tutor-recetas", icon: "📖", title: "Recetario", text: "El mismo recetario regional, con ingredientes y preparación, para planear con calma.", points: ["Basado en el Plato del Bien Comer.", "Una guía de aprendizaje, no una dieta médica."] },
-      { img: "tutor-menu", icon: "📅", title: "Planificador familiar", text: "Elige una receta para cada día de la semana y cámbiala cuando quieras.", points: ["De lunes a domingo.", "No es un plan alimenticio médico."] },
-      { img: "tutor-ajustes", icon: "⚙️", title: "Ajustes", text: "Recordatorios familiares, meta de agua elegida en familia y un tiempo de uso acordado.", points: ["Tiempo de uso: 15, 30, 45 o 60 minutos.", "La app no bloquea el dispositivo ni mide tiempo en segundo plano."] }
+    g6: [
+      {
+        title: "P1. Días con ≥30 min de actividad (6.º grado · n = 95)",
+        bars: [
+          { label: "4 a 7 días por semana", pct: 23.2, n: 22, tone: "good" },
+          { label: "1 a 3 días por semana", pct: 48.4, n: 46, tone: "warn" },
+          { label: "Casi nunca", pct: 28.4, n: 27, tone: "bad" }
+        ]
+      },
+      {
+        title: "P2. Consumo entre comidas (6.º grado · n = 95)",
+        bars: [
+          { label: "Frutas/verduras, porciones equilibradas", pct: 24.2, n: 23, tone: "good" },
+          { label: "Botanas, galletas o pan dulce", pct: 46.3, n: 44, tone: "warn" },
+          { label: "Comida rápida y bebidas azucaradas", pct: 29.5, n: 28, tone: "bad" }
+        ]
+      },
+      {
+        title: "P3. Horas de pantalla al día (6.º grado · n = 95)",
+        bars: [
+          { label: "Menos de 2 horas", pct: 17.9, n: 17, tone: "good" },
+          { label: "2 a 4 horas diarias", pct: 44.2, n: 42, tone: "warn" },
+          { label: "Más de 4 horas diarias", pct: 37.9, n: 36, tone: "bad" }
+        ]
+      },
+      {
+        title: "P4. Sueño en días de clase (6.º grado · n = 95)",
+        bars: [
+          { label: "Temprano y con energía", pct: 22.1, n: 21, tone: "good" },
+          { label: "Tarde por pantallas", pct: 47.4, n: 45, tone: "warn" },
+          { label: "Desvelo y cansancio", pct: 30.5, n: 29, tone: "bad" }
+        ]
+      }
     ]
   };
-  const showcase = $("#showcase"), list = $("#screenList"), img = $("#showImg");
-  const info = $("#screenInfo");
-  let mode = "peque", idx = 0;
 
-  // precarga
-  Object.values(SCREENS).flat().forEach(s => { const i = new Image(); i.src = `img/${s.img}.webp`; });
-
-  const renderList = () => {
-    list.innerHTML = "";
-    SCREENS[mode].forEach((s, i) => {
-      const li = document.createElement("li");
-      const b = document.createElement("button");
-      b.type = "button";
-      b.innerHTML = `<span class="dot" aria-hidden="true">${s.icon}</span><span>${s.title}</span>`;
-      b.addEventListener("click", () => show(i));
-      li.appendChild(b);
-      list.appendChild(li);
+  const surveyContainer = $("#surveyCharts");
+  function renderSurvey(gradeKey) {
+    if (!surveyContainer) return;
+    surveyContainer.innerHTML = SURVEY_DATA[gradeKey].map(card => `
+      <article class="chart-card">
+        <h3>${card.title}</h3>
+        <div class="chart-bars">
+          ${card.bars.map(b => `
+            <div class="cbar">
+              <div class="cbar__top"><span>${b.label}</span><span>${b.pct.toFixed(1)}% (n=${b.n})</span></div>
+              <div class="cbar__track"><div class="cbar__fill cbar__fill--${b.tone}" style="width: ${b.pct}%"></div></div>
+            </div>
+          `).join("")}
+        </div>
+      </article>
+    `).join("");
+  }
+  $$(".survey-tabs button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      $$(".survey-tabs button").forEach(b => b.setAttribute("aria-selected", "false"));
+      btn.setAttribute("aria-selected", "true");
+      renderSurvey(btn.dataset.grade);
     });
+  });
+  renderSurvey("g5");
+
+  /* ---------- Vitrina de capturas reales (Claro & Oscuro por cada tema) ---------- */
+  const SCREENS = {
+    rosa: [
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.53 PM (2).jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.50 PM (3).jpeg",
+        icon: "home", title: "Inicio · Reto familiar",
+        text: "Saludo personalizado para el perfil infantil con tema Lavanda y Rosa, puntos acumulados y acceso al reto familiar semanal.",
+        points: ["Banner de reto familiar ('Realizar las actividades durante una semana').", "Tarjetas grandes: Agua, Plato, Movimiento, Mis hábitos y retos, Mis logros y NutriBot.", "Cambio inmediato entre tema claro y oscuro."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.53 PM (3).jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.50 PM (5).jpeg",
+        icon: "droplet", title: "Mis hábitos y retos",
+        text: "Registro diario de agua (+10 puntos al completar 5 vasos) y sección 'Colores en mi plato' con los 4 grupos alimenticios.",
+        points: ["Botones interactivos '+1' para sumar vasos de agua.", "Grupos: Frutas y verduras, Cereales, Leguminosas y Origen animal.", "Acceso directo al registro emocional."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.53 PM (5).jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.51 PM.jpeg",
+        icon: "smile", title: "Estado de ánimo y descanso",
+        text: "Tarjetas visuales de colores para expresar cómo se siente (Feliz, Emocionado, Tranquilo, Cansado, Triste, Enojado) y registro de horas de sueño.",
+        points: ["Sin juicios ni etiquetas clínicas.", "Registro de descanso diario frente a la meta recomendada.", "Lista de retos del día y retos familiares."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.54 PM (1).jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.51 PM (3).jpeg",
+        icon: "activity", title: "Movimiento de hoy",
+        text: "Juegos tradicionales de patio que cambian cada día (Palomas y gavilanes, Salto de cuerda, Paseo en bicicleta) y guía 'Muévete con cuidado'.",
+        points: ["Clasificación por Cardio, Fuerza, Flexibilidad y Equilibrio.", "Duración recomendada por rango de edad.", "Acompañamiento seguro en familia."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.53 PM (1).jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.51 PM (5).jpeg",
+        icon: "salad", title: "Recetas con color",
+        text: "Catálogo de recetas saludables con buscador, filtros por tiempo de comida y alertas automáticas de alergias y preferencias del perfil.",
+        points: ["Aviso prioritario de alergias registradas (ej. Tomate, Nueces, Cacahuate).", "Preferencias visibles para evitar ingredientes que no le gustan.", "Recetas detalladas paso a paso."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.54 PM (3).jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.51 PM (4).jpeg",
+        icon: "bot", title: "NutriBot Familiar",
+        text: "Asistente integrado en la pantalla principal que responde dudas sobre hábitos, comida y bienestar sin enviar datos a servicios externos.",
+        points: ["Preguntas rápidas sugeridas ('¿De qué hablamos hoy?').", "Funciona localmente dentro de la aplicación.", "Lenguaje amigable adaptado a niñas y niños."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.52 PM (5).jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.52 PM (2).jpeg",
+        icon: "user", title: "Personaliza tu avatar",
+        text: "Constructor de personaje con vista previa en vivo: tono de piel, cabello, ropa y accesorios.",
+        points: ["Refuerza la identidad y sentido de pertenencia.", "Disponible desde el perfil infantil o desde Mis ajustes."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.52 PM (4).jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.52 PM.jpeg",
+        icon: "settings", title: "Mis ajustes y apariencia",
+        text: "Selector de apariencia (Claro, Oscuro o Automático según el sistema del teléfono) y efectos de sonido.",
+        points: ["Permite probar el modo oscuro al instante.", "Los controles parentales permanecen protegidos."]
+      }
+    ],
+    azul: [
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.55 PM.jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.57 PM (3).jpeg",
+        icon: "home", title: "Inicio · Tema Azul Cian",
+        text: "Cada perfil infantil puede elegir su propia paleta de color ('Azul y verde' o 'Lavanda y rosa') manteniendo todas las funciones.",
+        points: ["Personalización visual independiente por cada hijo.", "Recordatorio destacado: 'Toma un vaso de agua' (+10 pts).", "Barra de progreso diario."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.55 PM (2).jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.57 PM (5).jpeg",
+        icon: "droplet", title: "Mis hábitos y retos (Azul)",
+        text: "Seguimiento de hidratación y colores en el plato con botones en azul cian vibrante tanto en modo claro como en modo oscuro.",
+        points: ["Contador de 0 a 5 vasos de agua.", "Registro táctil de grupos alimenticios.", "Integración directa con el resumen del tutor."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.55 PM (5).jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.57 PM (1).jpeg",
+        icon: "trophy", title: "Mis logros y premios",
+        text: "Visualización de puntos acumulados, insignias por desbloquear y catálogo de premios familiares creados por el tutor.",
+        points: ["Premios canjeables en familia (ej. tiempo de juego o actividad especial).", "Explica claramente cómo se ganan los puntos."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.56 PM (1).jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.58 PM (3).jpeg",
+        icon: "activity", title: "Movimiento (Azul)",
+        text: "Rutinas diarias adaptadas para niños pequeños (6 a 8 años) como 'Saltitos con peso corporal' y 'Postura de árbol con cuidado'.",
+        points: ["Adaptación automática según la fecha de nacimiento registrada.", "Instrucciones claras y seguras."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.57 PM.jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.56 PM (6).jpeg",
+        icon: "help-circle", title: "¿Necesitas ayuda?",
+        text: "Guía ilustrada con la mascota WK que explica cómo registrar agua, cómo ganar puntos y qué es NutriBot.",
+        points: ["Aclara que NutriBot no es un médico y no sustituye a un adulto.", "Diseño accesible con tarjetas limpias."]
+      }
+    ],
+    tutor: [
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.54 PM (4).jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.48 PM (1).jpeg",
+        icon: "users", title: "Panel Familia (Tutor)",
+        text: "Centro de mando en tonos ámbar/naranja: selector de perfiles infantiles (Lupita, Auda, Gaby), botón '+ Perfil', puntos y pendientes por revisar.",
+        points: ["Botón destacado de Control parental.", "Contadores de perfiles infantiles y actividades por revisar.", "Protegido con candado en el selector Niñez / Tutor."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.46 PM.jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.48 PM (2).jpeg",
+        icon: "bar-chart-2", title: "Resumen semanal del menor",
+        text: "Gráficas de los últimos 7 días: edad, peso, estatura, vasos de agua por día, anillo de grupos de alimentos, ánimo y descanso por día.",
+        points: ["Gráfica de barras diaria frente a la meta de 5 vasos.", "Anillo visual de equilibrio alimenticio.", "Comparativa de horas de sueño frente a lo recomendado (9–12 h)."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.46 PM (3).jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.49 PM.jpeg",
+        icon: "calendar", title: "Menú de la semana",
+        text: "Planificador de lunes a domingo para Desayuno, Comida y Cena con alertas visibles de alergias y preferencias del menor.",
+        points: ["Muestra alertas rojas para alergias y amarillas para alimentos que no le gustan.", "Permite asignar o cambiar recetas por día."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.47 PM (1).jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.49 PM (1).jpeg",
+        icon: "sliders", title: "Gestión de datos (Retos y Premios)",
+        text: "Módulo administrativo para crear y asignar retos, actividades físicas o didácticas, recompensas y planes alimenticios.",
+        points: ["Asignación individual o grupal a todos los hijos.", "Seguimiento de estado: Asignado, Lo completó, Verificado."]
+      },
+      {
+        light: "img/WhatsApp Image 2026-11-25 at 10.25.48 PM.jpeg",
+        dark: "img/WhatsApp Image 2026-11-25 at 10.25.50 PM (2).jpeg",
+        icon: "shield-check", title: "Ajustes y privacidad (Tutor)",
+        text: "Configuración de Control parental, metas diarias de agua, selector de apariencia (Claro / Oscuro / Automático) y gestión de cuenta Supabase.",
+        points: ["Muestra el correo verificado de la cuenta familiar.", "Cierre de sesión seguro."]
+      }
+    ]
   };
-  const show = (i, first = false) => {
-    const arr = SCREENS[mode];
-    idx = (i + arr.length) % arr.length;
-    const s = arr[idx];
-    $$("button", list).forEach((b, j) => b.setAttribute("aria-current", j === idx ? "true" : "false"));
-    $("#screenCount").textContent = `${idx + 1} / ${arr.length}`;
-    $("#infoTag").textContent = mode === "peque" ? "Modo Peque" : "Modo Tutor";
+
+  const showcase = $("#showcase"), list = $("#screenList"), img = $("#showImg");
+  let currentMode = "rosa", currentIdx = 0;
+
+  function renderList() {
+    list.innerHTML = SCREENS[currentMode].map((s, i) => `
+      <li>
+        <button type="button" aria-current="${i === currentIdx ? "true" : "false"}" data-i="${i}">
+          <span class="dot" aria-hidden="true"><i data-lucide="${s.icon}"></i></span>
+          <span>${s.title}</span>
+        </button>
+      </li>
+    `).join("");
+    list.querySelectorAll("button").forEach(b => {
+      b.addEventListener("click", () => renderShowcase(Number(b.dataset.i)));
+    });
+    refreshIcons();
+  }
+
+  function renderShowcase(i, instant = false) {
+    const arr = SCREENS[currentMode];
+    currentIdx = (i + arr.length) % arr.length;
+    const s = arr[currentIdx];
+    const targetSrc = isDarkMode() ? s.dark : s.light;
+
+    list.querySelectorAll("button").forEach((b, j) => b.setAttribute("aria-current", j === currentIdx ? "true" : "false"));
+    $("#screenCount").textContent = `${currentIdx + 1} / ${arr.length}`;
+    $("#infoTag").textContent = currentMode === "rosa" ? "Modo Niñez · Tema Rosa" : currentMode === "azul" ? "Modo Niñez · Tema Azul" : "Modo Tutor · Tema Ámbar";
     $("#infoTitle").textContent = s.title;
     $("#infoText").textContent = s.text;
     $("#infoPoints").innerHTML = s.points.map(p => `<li>${p}</li>`).join("");
-    img.alt = `Captura del APK: ${s.title}`;
-    if (first || reduce) { img.src = `img/${s.img}.webp`; return; }
-    info.classList.remove("swap"); void info.offsetWidth; info.classList.add("swap");
+
+    if (instant || reduce) {
+      img.src = targetSrc;
+      return;
+    }
     img.classList.add("swap");
-    setTimeout(() => { img.src = `img/${s.img}.webp`; img.classList.remove("swap"); }, 260);
-  };
-  const setMode = (m) => {
-    mode = m;
-    showcase.dataset.mode = m;
-    $$(".mode-switch button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.mode === m)));
-    renderList();
-    show(0);
-  };
-  $$(".mode-switch button").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
-  $("#prevScreen").addEventListener("click", () => show(idx - 1));
-  $("#nextScreen").addEventListener("click", () => show(idx + 1));
-  // deslizar en el teléfono
-  let sx = null;
-  $("#showPhone").addEventListener("touchstart", e => { sx = e.touches[0].clientX; }, { passive: true });
-  $("#showPhone").addEventListener("touchend", e => {
-    if (sx === null) return;
-    const dx = e.changedTouches[0].clientX - sx;
-    if (Math.abs(dx) > 40) show(idx + (dx < 0 ? 1 : -1));
-    sx = null;
+    setTimeout(() => {
+      img.src = targetSrc;
+      img.classList.remove("swap");
+    }, 180);
+  }
+
+  $$(".mode-switch button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      $$(".mode-switch button").forEach(b => b.setAttribute("aria-selected", "false"));
+      btn.setAttribute("aria-selected", "true");
+      currentMode = btn.dataset.mode;
+      showcase.dataset.mode = currentMode;
+      currentIdx = 0;
+      renderList();
+      renderShowcase(0);
+    });
   });
+
+  $("#prevScreen").addEventListener("click", () => renderShowcase(currentIdx - 1));
+  $("#nextScreen").addEventListener("click", () => renderShowcase(currentIdx + 1));
+
   renderList();
-  show(0, true);
+  renderShowcase(0, true);
 
-  /* ---------- Rutinas ---------- */
-  const ROUTINES = {
-    cardio: [["💃", "Baila tu canción favorita", "10 min · movimiento libre"], ["🐸", "Imita animales", "8 min · salta y gatea"], ["🚶", "Paseo para descubrir", "15 min · caminata en familia"]],
-    fuerza: [["🦸", "Sentadillas de superhéroe", "Piernas fuertes"], ["🐊", "Camina como cocodrilo", "Brazos y abdomen"], ["🐻", "Plancha del osito", "Abdomen y espalda"]],
-    flex: [["🙆", "Estira como gigante", "5 min · brazos al cielo"], ["🧘", "Respira y relaja", "Estiramiento suave y sin dolor"], ["🌈", "Arcoíris de brazos", "Movimientos lentos de lado a lado"]]
-  };
-  const rBody = $("#routineBody");
-  const renderR = (k) => {
-    rBody.innerHTML = ROUTINES[k].map(([i, t, d]) => `<div class="move"><span class="move__ico" aria-hidden="true">${i}</span><div><b>${t}</b><small>${d}</small></div></div>`).join("");
-    $$(".routines__tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.r === k)));
-  };
-  $$(".routines__tabs button").forEach(b => b.addEventListener("click", () => renderR(b.dataset.r)));
-  renderR("cardio");
-
-  /* ---------- Demo de juego ---------- */
-  let pts = 60, approved = 1, water = 0;
+  /* ---------- Simulador interactivo ---------- */
+  let pts = 70, approved = 2, water = 0;
   const CH = [
-    { i: "🙆", t: "Estira como gigante", d: "5 min · +15 puntos con aprobación" },
-    { i: "💃", t: "Baila tu canción favorita", d: "10 min · +15 puntos con aprobación" },
-    { i: "🐸", t: "Imita animales", d: "8 min · +15 puntos con aprobación" },
-    { i: "🚶", t: "Paseo para descubrir", d: "15 min · +15 puntos con aprobación" }
+    { i: "droplet", t: "Hidrátate a tu ritmo", d: "Llega a tu meta de agua de hoy · +10 pts" },
+    { i: "salad", t: "Plato con colores", d: "Registra dos grupos de alimentos · +15 pts" },
+    { i: "smile", t: "Cuéntanos cómo estás", d: "Si quieres, elige cómo te sientes · +15 pts" },
+    { i: "trophy", t: "Reto familiar semanal", d: "Realizar las actividades durante una semana · +30 pts" }
   ];
   const chList = $("#challenges");
-  chList.innerHTML = CH.map((c, n) => `<li class="ch" data-state="todo" id="ch-${n}"><span class="ch__ico" aria-hidden="true">${c.i}</span><b>${c.t}</b><small>${c.d}</small><button class="ch__btn" type="button">Ya la hice · avisar a mi tutor</button></li>`).join("");
+  chList.innerHTML = CH.map((c, n) => `
+    <li class="ch" data-state="todo" id="ch-${n}">
+      <span class="ch__ico" aria-hidden="true"><i data-lucide="${c.i}"></i></span>
+      <b>${c.t}</b>
+      <small>${c.d}</small>
+      <button class="ch__btn" type="button">Lo hice · enviar a revisión</button>
+    </li>
+  `).join("");
+  refreshIcons();
 
   const toastEl = $("#toast");
   let toastT;
@@ -222,101 +407,58 @@
     clearTimeout(toastT);
     toastT = setTimeout(() => toastEl.classList.remove("show"), 2600);
   };
-  const confetti = (x, y) => {
-    if (reduce) return;
-    const colors = ["#9CCFF6", "#F8B4C4", "#AEE5CF", "#FFE39E", "#FFCBAB"];
-    for (let k = 0; k < 28; k++) {
-      const c = document.createElement("span");
-      c.className = "confetti";
-      c.style.background = colors[k % colors.length];
-      document.body.appendChild(c);
-      const ang = Math.random() * Math.PI * 2, dist = 80 + Math.random() * 140;
-      c.animate([
-        { transform: `translate(${x}px, ${y}px) rotate(0deg)`, opacity: 1 },
-        { transform: `translate(${x + Math.cos(ang) * dist}px, ${y + Math.sin(ang) * dist - 60}px) rotate(${Math.random() * 720}deg)`, opacity: 1, offset: .6 },
-        { transform: `translate(${x + Math.cos(ang) * dist * 1.2}px, ${y + Math.sin(ang) * dist + 120}px) rotate(${Math.random() * 900}deg)`, opacity: 0 }
-      ], { duration: 1200 + Math.random() * 500, easing: "cubic-bezier(.22,1,.36,1)" }).onfinish = () => c.remove();
-    }
-  };
-  const unlock = (key, name) => {
-    const b = $(`.badge[data-b="${key}"]`);
-    if (!b || b.classList.contains("is-on")) return;
-    b.classList.add("is-on", "unlock");
-    toast(`🏅 Nueva insignia: ${name}`);
-  };
+
   const updatePts = () => {
     $("#ptsNum").textContent = pts;
-    const badge = $(".pts-badge");
-    badge.classList.remove("bump"); void badge.offsetWidth; badge.classList.add("bump");
     const within = pts % 100;
     $("#xpBar").style.width = `${within === 0 ? 100 : within}%`;
-    $("#xpText").textContent = within === 0 ? "¡Recompensa completada! 100 de 100 puntos" :`${within} de 100 puntos`;
+    $("#xpText").textContent = `${within === 0 ? 100 : within} de 100 puntos`;
   };
+
   chList.addEventListener("click", (e) => {
     const btn = e.target.closest(".ch__btn");
     if (!btn) return;
     const li = btn.closest(".ch");
-    const st = li.dataset.state;
-    if (st === "todo") {
+    if (li.dataset.state === "todo") {
       li.dataset.state = "waiting";
-      btn.textContent = "Tutor: confirmar · +15 pts";
-      toast("¡Actividad registrada! Pídele a tu tutor que la revise.");
-    } else if (st === "waiting") {
+      btn.textContent = "Tutor: aprobar · +15 pts";
+      toast("Enviado a revisión de tu tutor.");
+    } else if (li.dataset.state === "waiting") {
       li.dataset.state = "done";
-      btn.textContent = "Confirmada ✓";
+      btn.textContent = "Aprobado por tutor";
       btn.disabled = true;
-      const before = pts;
       pts += 15; approved++;
       updatePts();
-      const r = btn.getBoundingClientRect();
-      confetti(r.left + r.width / 2, r.top);
-      if (Math.floor(pts / 100) > Math.floor(before / 100)) setTimeout(() => toast("🎁 ¡Recompensa virtual completada!"), 900);
-      if (approved >= 3) setTimeout(() => unlock("equipo", "Familia en equipo"), 400);
-      if (li.id === "ch-3") setTimeout(() => unlock("cami", "Caminante"), 1400);
+      if (approved >= 3) $(`.badge[data-b="cami"]`)?.classList.add("is-on");
+      toast("¡Actividad aprobada! Puntos acreditados.");
     }
   });
 
   const glasses = $("#glasses"), GOAL = 5;
   glasses.innerHTML = Array.from({ length: GOAL }, () => '<span class="glass"></span>').join("");
   $("#addWater").addEventListener("click", () => {
-    if (water >= GOAL) { toast("Meta de agua cumplida por hoy 💧"); return; }
+    if (water >= GOAL) { toast("Meta de 5 vasos cumplida hoy (+10 pts)"); return; }
     water++;
     $$(".glass", glasses)[water - 1].classList.add("full");
-    $("#waterText").textContent = `${water} de ${GOAL} vasos de la meta familiar.`;
-    if (water === GOAL) unlock("hidra", "Hidratacionista");
+    $("#waterText").textContent = `${water} de ${GOAL} vasos registrados hoy.`;
+    if (water === GOAL) {
+      pts += 10;
+      updatePts();
+      $(`.badge[data-b="hidra"]`)?.classList.add("is-on");
+      toast("¡Meta de agua alcanzada! +10 puntos");
+    }
   });
 
   const MOODS = {
-    gusto: "¡Qué bien! Comparte esa alegría con tu familia.",
-    tranquilo: "La calma también es energía. ¿Un estiramiento suave?",
-    masomenos: "Está bien sentirse así. Un vaso de agua y un paseo corto pueden ayudar.",
-    cansado: "Descansar es parte de ser un guerrero. Hoy puedes elegir algo tranquilo.",
-    triste: "Gracias por contarlo. Habla con una persona adulta de confianza; no estás solo."
+    feliz: "¡Qué bien! Tu estado de ánimo feliz se guarda en tu resumen semanal.",
+    emocionado: "¡Genial! Aprovecha esa energía para jugar en familia.",
+    tranquilo: "Estar tranquilo ayuda a descansar bien.",
+    cansado: "Recuerda dormir entre 9 y 12 horas para recuperar energía.",
+    triste: "Gracias por contarlo. Platica con tu persona tutora de confianza.",
+    enojado: "Respira profundo; contar cómo te sientes es un gran paso."
   };
   $$("#moods button").forEach(b => b.addEventListener("click", () => {
     $$("#moods button").forEach(x => x.setAttribute("aria-checked", String(x === b)));
-    const msg = $("#moodMsg");
-    msg.textContent = MOODS[b.dataset.m];
-    msg.animate?.([{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }], { duration: 400, easing: "ease-out" });
+    $("#moodMsg").textContent = MOODS[b.dataset.m];
   }));
-
-  /* ---------- Plato del Bien Comer ---------- */
-  const plate = $(".plate");
-  let selG = null;
-  const selectG = (g) => {
-    selG = selG === g ? null : g;
-    plate.classList.toggle("has-sel", !!selG);
-    $$(".plate__seg").forEach(s => s.classList.toggle("sel", s.dataset.g === selG));
-    $$(".lg").forEach(l => l.setAttribute("aria-pressed", String(l.dataset.g === selG)));
-    $$(".recipe").forEach(r => r.classList.toggle("dim", !!selG && !r.dataset.g.split(" ").includes(selG)));
-  };
-  $$(".plate__seg, .lg").forEach(el => el.addEventListener("click", () => selectG(el.dataset.g)));
-  $$(".lg").forEach(l => l.setAttribute("aria-pressed", "false"));
-
-  /* ---------- Línea "Hoy" en el cronograma ---------- */
-  const now = new Date();
-  if (now.getFullYear() === 2026 && now.getMonth() >= 7 && now.getMonth() <= 11) {
-    const m = (now.getMonth() - 7) + (now.getDate() - 1) / 31;
-    $(".g-today").style.setProperty("--m", m.toFixed(2));
-  }
 })();
