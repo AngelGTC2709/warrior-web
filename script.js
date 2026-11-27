@@ -43,15 +43,38 @@
     menuBtn.setAttribute("aria-expanded", String(open));
     links.classList.toggle("is-open", open);
   });
+  $$("a", links).forEach(a => a.addEventListener("click", () => {
+    menuBtn.setAttribute("aria-expanded", "false");
+    links.classList.remove("is-open");
+  }));
 
-  /* ---------- Barra de progreso ---------- */
+  /* ---------- Barra de progreso + enlace activo ---------- */
   const line = $("#progressLine");
-  addEventListener("scroll", () => {
+  const navMap = new Map($$("a", links).map(a => [a.getAttribute("href").slice(1), a]));
+  const onScroll = () => {
     const h = document.documentElement.scrollHeight - innerHeight;
     line.style.transform = `scaleX(${h > 0 ? scrollY / h : 0})`;
-  }, { passive: true });
+  };
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
 
-  /* ---------- Revelado al hacer scroll ---------- */
+  const secObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      navMap.forEach(a => a.classList.remove("is-active"));
+      navMap.get(e.target.id)?.classList.add("is-active");
+    });
+  }, { rootMargin: "-45% 0px -50% 0px" });
+  $$("main section[id]").forEach(s => secObs.observe(s));
+
+  /* ---------- Revelado escalonado al hacer scroll ---------- */
+  const groups = new Map();
+  $$(".reveal").forEach(el => {
+    const p = el.parentElement;
+    const i = groups.get(p) || 0;
+    groups.set(p, i + 1);
+    el.style.setProperty("--d", `${Math.min(i, 6) * 0.08}s`);
+  });
   const revObs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (!e.isIntersecting) return;
@@ -62,6 +85,18 @@
   $$(".reveal").forEach(el => revObs.observe(el));
 
   /* ---------- Contadores y anillos ---------- */
+  const animateCount = (el) => {
+    const to = parseFloat(el.dataset.to);
+    if (reduce) { el.textContent = to.toFixed(1); return; }
+    const t0 = performance.now(), dur = 1600;
+    const tick = (t) => {
+      const p = Math.min((t - t0) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = (to * eased).toFixed(1);
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
   const statObs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (!e.isIntersecting) return;
@@ -69,7 +104,7 @@
       const bar = $(".ring__bar", ring);
       const to = parseFloat(ring.dataset.value);
       bar.style.strokeDashoffset = 326.7 * (1 - to / 100);
-      $(".count", e.target).textContent = to.toFixed(1);
+      animateCount($(".count", e.target));
       statObs.unobserve(e.target);
     });
   }, { threshold: 0.3 });
@@ -86,95 +121,149 @@
     }, 3400);
   }
 
-  /* ---------- Gráficas reales del estudio (5.º y 6.º grado) ---------- */
+  /* ---------- Gráficas de Pastel SVG del estudio (5.º y 6.º grado) ---------- */
   const SURVEY_DATA = {
     g5: [
       {
-        title: "P1. Bebida habitual (5.º grado · n = 116)",
-        bars: [
-          { label: "Agua simple natural", pct: 37.9, n: 44, tone: "good" },
-          { label: "Jugos/aguas con azúcar o té", pct: 37.1, n: 43, tone: "warn" },
-          { label: "Refrescos o bebidas saborizadas", pct: 25.0, n: 29, tone: "bad" }
+        title: "P1. Bebida habitual (5.º grado)",
+        total: "n = 116",
+        slices: [
+          { label: "Agua simple natural", pct: 37.9, n: 44, color: "#10B981" },
+          { label: "Jugos/aguas con azúcar o té", pct: 37.1, n: 43, color: "#F59E0B" },
+          { label: "Refrescos o bebidas saborizadas", pct: 25.0, n: 29, color: "#F43F5E" }
         ]
       },
       {
-        title: "P2. Tiempo libre en casa (5.º grado · n = 116)",
-        bars: [
-          { label: "Juego activo, bici, deporte", pct: 33.6, n: 39, tone: "good" },
-          { label: "Dibujar, leer, juguetes", pct: 25.0, n: 29, tone: "warn" },
-          { label: "Pantallas sentado(a)", pct: 41.4, n: 48, tone: "bad" }
+        title: "P2. Tiempo libre en casa (5.º grado)",
+        total: "n = 116",
+        slices: [
+          { label: "Juego activo, bici, deporte", pct: 33.6, n: 39, color: "#10B981" },
+          { label: "Dibujar, leer, juguetes", pct: 25.0, n: 29, color: "#38BDF8" },
+          { label: "Pantallas sentado(a)", pct: 41.4, n: 48, color: "#F43F5E" }
         ]
       },
       {
-        title: "P3. Actividad en el recreo (5.º grado · n = 116)",
-        bars: [
-          { label: "Juegos con movimiento", pct: 46.6, n: 54, tone: "good" },
-          { label: "Caminar y platicar", pct: 32.8, n: 38, tone: "warn" },
-          { label: "Sentado, comer o dispositivo", pct: 20.7, n: 24, tone: "bad" }
+        title: "P3. Actividad en el recreo (5.º grado)",
+        total: "n = 116",
+        slices: [
+          { label: "Juegos con movimiento", pct: 46.6, n: 54, color: "#10B981" },
+          { label: "Caminar y platicar", pct: 32.8, n: 38, color: "#F59E0B" },
+          { label: "Sentado, comer o dispositivo", pct: 20.7, n: 24, color: "#F43F5E" }
         ]
       },
       {
-        title: "P4. Sensación al correr (5.º grado · n = 116)",
-        bars: [
-          { label: "Con fuerza, sin problema", pct: 30.2, n: 35, tone: "good" },
-          { label: "Un poco cansado(a)", pct: 48.3, n: 56, tone: "warn" },
-          { label: "Muy agitado(a)", pct: 21.6, n: 25, tone: "bad" }
+        title: "P4. Sensación al correr (5.º grado)",
+        total: "n = 116",
+        slices: [
+          { label: "Con fuerza, sin problema", pct: 30.2, n: 35, color: "#10B981" },
+          { label: "Un poco cansado(a)", pct: 48.3, n: 56, color: "#F59E0B" },
+          { label: "Muy agitado(a)", pct: 21.6, n: 25, color: "#F43F5E" }
         ]
       }
     ],
     g6: [
       {
-        title: "P1. Días con ≥30 min de actividad (6.º grado · n = 95)",
-        bars: [
-          { label: "4 a 7 días por semana", pct: 23.2, n: 22, tone: "good" },
-          { label: "1 a 3 días por semana", pct: 48.4, n: 46, tone: "warn" },
-          { label: "Casi nunca", pct: 28.4, n: 27, tone: "bad" }
+        title: "P1. Días con ≥30 min de actividad (6.º grado)",
+        total: "n = 95",
+        slices: [
+          { label: "4 a 7 días por semana", pct: 23.2, n: 22, color: "#10B981" },
+          { label: "1 a 3 días por semana", pct: 48.4, n: 46, color: "#F59E0B" },
+          { label: "Casi nunca", pct: 28.4, n: 27, color: "#F43F5E" }
         ]
       },
       {
-        title: "P2. Consumo entre comidas (6.º grado · n = 95)",
-        bars: [
-          { label: "Frutas/verduras, porciones equilibradas", pct: 24.2, n: 23, tone: "good" },
-          { label: "Botanas, galletas o pan dulce", pct: 46.3, n: 44, tone: "warn" },
-          { label: "Comida rápida y bebidas azucaradas", pct: 29.5, n: 28, tone: "bad" }
+        title: "P2. Consumo entre comidas (6.º grado)",
+        total: "n = 95",
+        slices: [
+          { label: "Frutas/verduras equilibradas", pct: 24.2, n: 23, color: "#10B981" },
+          { label: "Botanas, galletas o pan dulce", pct: 46.3, n: 44, color: "#F59E0B" },
+          { label: "Comida rápida y azucaradas", pct: 29.5, n: 28, color: "#F43F5E" }
         ]
       },
       {
-        title: "P3. Horas de pantalla al día (6.º grado · n = 95)",
-        bars: [
-          { label: "Menos de 2 horas", pct: 17.9, n: 17, tone: "good" },
-          { label: "2 a 4 horas diarias", pct: 44.2, n: 42, tone: "warn" },
-          { label: "Más de 4 horas diarias", pct: 37.9, n: 36, tone: "bad" }
+        title: "P3. Horas de pantalla al día (6.º grado)",
+        total: "n = 95",
+        slices: [
+          { label: "Menos de 2 horas", pct: 17.9, n: 17, color: "#10B981" },
+          { label: "2 a 4 horas diarias", pct: 44.2, n: 42, color: "#F59E0B" },
+          { label: "Más de 4 horas diarias", pct: 37.9, n: 36, color: "#F43F5E" }
         ]
       },
       {
-        title: "P4. Sueño en días de clase (6.º grado · n = 95)",
-        bars: [
-          { label: "Temprano y con energía", pct: 22.1, n: 21, tone: "good" },
-          { label: "Tarde por pantallas", pct: 47.4, n: 45, tone: "warn" },
-          { label: "Desvelo y cansancio", pct: 30.5, n: 29, tone: "bad" }
+        title: "P4. Sueño en días de clase (6.º grado)",
+        total: "n = 95",
+        slices: [
+          { label: "Temprano y con energía", pct: 22.1, n: 21, color: "#10B981" },
+          { label: "Tarde por pantallas", pct: 47.4, n: 45, color: "#F59E0B" },
+          { label: "Desvelo y cansancio", pct: 30.5, n: 29, color: "#F43F5E" }
         ]
       }
     ]
   };
 
+  function buildPiePaths(slices) {
+    const cx = 100, cy = 100, r = 84;
+    const sum = slices.reduce((acc, s) => acc + s.pct, 0);
+    let currentAngle = -Math.PI / 2;
+
+    return slices.map((s, idx) => {
+      const sliceAngle = (s.pct / sum) * Math.PI * 2;
+      const x1 = cx + r * Math.cos(currentAngle);
+      const y1 = cy + r * Math.sin(currentAngle);
+      const endAngle = currentAngle + sliceAngle;
+      const x2 = cx + r * Math.cos(endAngle);
+      const y2 = cy + r * Math.sin(endAngle);
+      const largeArc = sliceAngle > Math.PI ? 1 : 0;
+      const d = `M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`;
+      currentAngle = endAngle;
+      return `<path class="pie-slice" data-idx="${idx}" d="${d}" fill="${s.color}"><title>${s.label}: ${s.pct}% (n=${s.n})</title></path>`;
+    }).join("");
+  }
+
   const surveyContainer = $("#surveyCharts");
   function renderSurvey(gradeKey) {
     if (!surveyContainer) return;
-    surveyContainer.innerHTML = SURVEY_DATA[gradeKey].map(card => `
-      <article class="chart-card">
+    surveyContainer.innerHTML = SURVEY_DATA[gradeKey].map((card, cIdx) => `
+      <article class="pie-card" data-card="${cIdx}">
         <h3>${card.title}</h3>
-        <div class="chart-bars">
-          ${card.bars.map(b => `
-            <div class="cbar">
-              <div class="cbar__top"><span>${b.label}</span><span>${b.pct.toFixed(1)}% (n=${b.n})</span></div>
-              <div class="cbar__track"><div class="cbar__fill cbar__fill--${b.tone}" style="width: ${b.pct}%"></div></div>
-            </div>
-          `).join("")}
+        <div class="pie-card__body">
+          <svg class="pie-svg" viewBox="0 0 200 200" aria-label="${card.title}">
+            <circle cx="100" cy="100" r="88" class="pie-rim"/>
+            ${buildPiePaths(card.slices)}
+            <circle cx="100" cy="100" r="34" class="pie-hole"/>
+            <text x="100" y="100" class="pie-center-txt">${card.total}</text>
+          </svg>
+          <ul class="pie-legend">
+            ${card.slices.map((s, sIdx) => `
+              <li data-idx="${sIdx}">
+                <span class="pie-legend__left"><i class="pie-dot" style="background:${s.color}"></i>${s.label}</span>
+                <span class="pie-val">${s.pct.toFixed(1)}% (${s.n})</span>
+              </li>
+            `).join("")}
+          </ul>
         </div>
       </article>
     `).join("");
+
+    // Interacción sincronizada entre rebanada del pastel y leyenda
+    surveyContainer.querySelectorAll(".pie-card").forEach(card => {
+      const slices = card.querySelectorAll(".pie-slice");
+      const items = card.querySelectorAll(".pie-legend li");
+      const highlight = (idx, active) => {
+        slices[idx]?.classList.toggle("is-hl", active);
+        items[idx]?.classList.toggle("is-hl", active);
+      };
+      slices.forEach((sl, i) => {
+        sl.addEventListener("mouseenter", () => highlight(i, true));
+        sl.addEventListener("mouseleave", () => highlight(i, false));
+      });
+      items.forEach((it, i) => {
+        it.addEventListener("mouseenter", () => highlight(i, true));
+        it.addEventListener("mouseleave", () => highlight(i, false));
+      });
+    });
   }
+
   $$(".survey-tabs button").forEach(btn => {
     btn.addEventListener("click", () => {
       $$(".survey-tabs button").forEach(b => b.setAttribute("aria-selected", "false"));
@@ -321,6 +410,7 @@
   };
 
   const showcase = $("#showcase"), list = $("#screenList"), img = $("#showImg");
+  const info = $("#screenInfo");
   let currentMode = "rosa", currentIdx = 0;
 
   function renderList() {
@@ -355,11 +445,12 @@
       img.src = targetSrc;
       return;
     }
+    info.classList.remove("swap"); void info.offsetWidth; info.classList.add("swap");
     img.classList.add("swap");
     setTimeout(() => {
       img.src = targetSrc;
       img.classList.remove("swap");
-    }, 180);
+    }, 220);
   }
 
   $$(".mode-switch button").forEach(btn => {
@@ -377,10 +468,19 @@
   $("#prevScreen").addEventListener("click", () => renderShowcase(currentIdx - 1));
   $("#nextScreen").addEventListener("click", () => renderShowcase(currentIdx + 1));
 
+  let sx = null;
+  $("#showPhone").addEventListener("touchstart", e => { sx = e.touches[0].clientX; }, { passive: true });
+  $("#showPhone").addEventListener("touchend", e => {
+    if (sx === null) return;
+    const dx = e.changedTouches[0].clientX - sx;
+    if (Math.abs(dx) > 40) renderShowcase(currentIdx + (dx < 0 ? 1 : -1));
+    sx = null;
+  });
+
   renderList();
   renderShowcase(0, true);
 
-  /* ---------- Simulador interactivo ---------- */
+  /* ---------- Simulador interactivo con confeti ---------- */
   let pts = 70, approved = 2, water = 0;
   const CH = [
     { i: "droplet", t: "Hidrátate a tu ritmo", d: "Llega a tu meta de agua de hoy · +10 pts" },
@@ -408,8 +508,34 @@
     toastT = setTimeout(() => toastEl.classList.remove("show"), 2600);
   };
 
+  const confetti = (x, y) => {
+    if (reduce) return;
+    const colors = ["#F43F5E", "#F59E0B", "#10B981", "#FACC15", "#38BDF8"];
+    for (let k = 0; k < 28; k++) {
+      const c = document.createElement("span");
+      c.className = "confetti";
+      c.style.background = colors[k % colors.length];
+      document.body.appendChild(c);
+      const ang = Math.random() * Math.PI * 2, dist = 80 + Math.random() * 140;
+      c.animate([
+        { transform: `translate(${x}px, ${y}px) rotate(0deg)`, opacity: 1 },
+        { transform: `translate(${x + Math.cos(ang) * dist}px, ${y + Math.sin(ang) * dist - 60}px) rotate(${Math.random() * 720}deg)`, opacity: 1, offset: .6 },
+        { transform: `translate(${x + Math.cos(ang) * dist * 1.2}px, ${y + Math.sin(ang) * dist + 120}px) rotate(${Math.random() * 900}deg)`, opacity: 0 }
+      ], { duration: 1200 + Math.random() * 500, easing: "cubic-bezier(.22,1,.36,1)" }).onfinish = () => c.remove();
+    }
+  };
+
+  const unlock = (key, name) => {
+    const b = $(`.badge[data-b="${key}"]`);
+    if (!b || b.classList.contains("is-on")) return;
+    b.classList.add("is-on", "unlock");
+    toast(`Nueva insignia desbloqueada: ${name}`);
+  };
+
   const updatePts = () => {
     $("#ptsNum").textContent = pts;
+    const badge = $(".pts-badge");
+    badge.classList.remove("bump"); void badge.offsetWidth; badge.classList.add("bump");
     const within = pts % 100;
     $("#xpBar").style.width = `${within === 0 ? 100 : within}%`;
     $("#xpText").textContent = `${within === 0 ? 100 : within} de 100 puntos`;
@@ -429,7 +555,9 @@
       btn.disabled = true;
       pts += 15; approved++;
       updatePts();
-      if (approved >= 3) $(`.badge[data-b="cami"]`)?.classList.add("is-on");
+      const r = btn.getBoundingClientRect();
+      confetti(r.left + r.width / 2, r.top);
+      if (approved >= 3) setTimeout(() => unlock("cami", "Familia activa"), 400);
       toast("¡Actividad aprobada! Puntos acreditados.");
     }
   });
@@ -444,8 +572,7 @@
     if (water === GOAL) {
       pts += 10;
       updatePts();
-      $(`.badge[data-b="hidra"]`)?.classList.add("is-on");
-      toast("¡Meta de agua alcanzada! +10 puntos");
+      unlock("hidra", "Hidratacionista");
     }
   });
 
